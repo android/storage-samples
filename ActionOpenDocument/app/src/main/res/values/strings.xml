@@ -18,7 +18,10 @@
 
     <string name="app_name">ActionOpenDocument</string>
     <string name="app_name_with_index">ActionOpenDocument (%1$d/%2$d)</string>
+
+    <string name="open_file">Open…</string>
     <string name="info">Info</string>
+
     <string name="previous">Previous</string>
     <string name="next">Next</string>
     <string name="intro_message">

@@ -20,16 +20,16 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Bitmap.createBitmap
 import android.graphics.pdf.PdfRenderer
+import android.net.Uri
 import android.os.Bundle
-import android.os.ParcelFileDescriptor
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
-import java.io.File
-import java.io.FileOutputStream
+import androidx.core.net.toUri
+import java.io.FileDescriptor
 import java.io.IOException
 
 /**
@@ -37,11 +37,6 @@ import java.io.IOException
  * We use a [PdfRenderer] to render PDF pages as [Bitmap]s.
  */
 class ActionOpenDocumentFragment : androidx.fragment.app.Fragment(), View.OnClickListener {
-
-    /**
-     * The filename of the PDF.
-     */
-    private val FILENAME = "sample.pdf"
 
     /**
      * Key string for saving the state of current page index.
@@ -57,11 +52,6 @@ class ActionOpenDocumentFragment : androidx.fragment.app.Fragment(), View.OnClic
      * The initial page index of the PDF.
      */
     private val INITIAL_PAGE_INDEX = 0
-
-    /**
-     * File descriptor of the PDF.
-     */
-    private lateinit var fileDescriptor: ParcelFileDescriptor
 
     /**
      * [PdfRenderer] to render the PDF.
@@ -93,11 +83,25 @@ class ActionOpenDocumentFragment : androidx.fragment.app.Fragment(), View.OnClic
      */
     private var pageIndex: Int = INITIAL_PAGE_INDEX
 
+    private var documentUri: Uri? = null
+
+    companion object {
+        fun newInstance(documentUri: Uri): ActionOpenDocumentFragment {
+
+            return ActionOpenDocumentFragment().apply {
+                arguments = Bundle().apply {
+                    putString(DOCUMENT_URI_ARGUMENT, documentUri.toString())
+                }
+            }
+        }
+    }
+
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
+        documentUri = arguments?.getString(DOCUMENT_URI_ARGUMENT)?.toUri()
         return inflater.inflate(R.layout.fragment_pdf_renderer_basic, container, false)
     }
 
@@ -105,7 +109,7 @@ class ActionOpenDocumentFragment : androidx.fragment.app.Fragment(), View.OnClic
         super.onViewCreated(view, savedInstanceState)
         imageView = view.findViewById(R.id.image)
         btnPrevious = view.findViewById<Button>(R.id.previous).also { it.setOnClickListener(this) }
-        btnNext = view.findViewById<Button>(R.id.next).also { it.setOnClickListener(this)}
+        btnNext = view.findViewById<Button>(R.id.next).also { it.setOnClickListener(this) }
 
         // If there is a savedInstanceState (screen orientations, etc.), we restore the page index.
         if (savedInstanceState != null) {
@@ -117,21 +121,24 @@ class ActionOpenDocumentFragment : androidx.fragment.app.Fragment(), View.OnClic
 
     override fun onStart() {
         super.onStart()
-        try {
-            openRenderer(activity)
-            showPage(pageIndex)
-        } catch (e: IOException) {
-            Log.d(TAG, e.toString())
+
+        documentUri?.let { documentUri ->
+            try {
+                openRenderer(activity, documentUri)
+                showPage(pageIndex)
+            } catch (ioException: IOException) {
+                Log.d(TAG, "Exception opening document", ioException)
+            }
         }
     }
 
     override fun onStop() {
+        super.onStop()
         try {
             closeRenderer()
-        } catch (e: IOException) {
-            Log.d(TAG, e.toString())
+        } catch (ioException: IOException) {
+            Log.d(TAG, "Exception closing document", ioException)
         }
-        super.onStop()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -143,26 +150,16 @@ class ActionOpenDocumentFragment : androidx.fragment.app.Fragment(), View.OnClic
      * Sets up a [PdfRenderer] and related resources.
      */
     @Throws(IOException::class)
-    private fun openRenderer(context: Context?) {
+    private fun openRenderer(context: Context?, documentUri: Uri) {
         if (context == null) return
 
-        // In this sample, we read a PDF from the assets directory.
-        val file = File(context.cacheDir, FILENAME)
-        if (!file.exists()) {
-            // Since PdfRenderer cannot handle the compressed asset file directly, we copy it into
-            // the cache directory.
-            val asset = context.assets.open(FILENAME)
-            val output = FileOutputStream(file)
-            val buffer = ByteArray(1024)
-            var size = asset.read(buffer)
-            while (size != -1) {
-                output.write(buffer, 0, size)
-                size = asset.read(buffer)
-            }
-            asset.close()
-            output.close()
-        }
-        fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+        /**
+         * It may be tempting to use `use` here, but [PdfRenderer] expects to take ownership
+         * of the [FileDescriptor], and, if we did use `use`, it would be auto-closed at the
+         * end of the block, preventing us from rendering additional pages.
+         */
+        val fileDescriptor = context.contentResolver.openFileDescriptor(documentUri, "r") ?: return
+
         // This is the PdfRenderer we use to render the PDF.
         pdfRenderer = PdfRenderer(fileDescriptor)
         currentPage = pdfRenderer.openPage(pageIndex)
@@ -177,7 +174,6 @@ class ActionOpenDocumentFragment : androidx.fragment.app.Fragment(), View.OnClic
     private fun closeRenderer() {
         currentPage.close()
         pdfRenderer.close()
-        fileDescriptor.close()
     }
 
     /**
@@ -234,3 +230,6 @@ class ActionOpenDocumentFragment : androidx.fragment.app.Fragment(), View.OnClic
     }
 
 }
+
+private const val DOCUMENT_URI_ARGUMENT =
+    "com.example.android.actionopendocument.args.DOCUMENT_URI_ARGUMENT"
