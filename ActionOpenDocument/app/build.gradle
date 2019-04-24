@@ -52,5 +52,6 @@ dependencies {
     androidTestImplementation 'androidx.annotation:annotation:1.0.2'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test:rules:1.1.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     testImplementation "junit:junit:$rootProject.ext.junitVersion"
 }

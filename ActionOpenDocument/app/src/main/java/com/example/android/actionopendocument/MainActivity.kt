@@ -31,11 +31,7 @@ import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.fragment.app.transaction
 
-private const val FRAGMENT_PDF_RENDERER_BASIC = "pdf_renderer_basic"
-private const val OPEN_DOCUMENT_REQUEST_CODE = 0x33
-private const val TAG = "MainActivity"
-private const val LAST_OPENED_URI_KEY =
-    "com.example.android.actionopendocument.pref.LAST_OPENED_URI_KEY"
+const val DOCUMENT_FRAGMENT_TAG = "com.example.android.actionopendocument.tags.DOCUMENT_FRAGMENT"
 
 /**
  * Simple activity to host [ActionOpenDocumentFragment].
@@ -138,7 +134,13 @@ class MainActivity : AppCompatActivity() {
 
         val fragment = ActionOpenDocumentFragment.newInstance(documentUri)
         supportFragmentManager.transaction {
-            add(R.id.container, fragment, FRAGMENT_PDF_RENDERER_BASIC)
+            add(R.id.container, fragment, DOCUMENT_FRAGMENT_TAG)
         }
     }
 }
+
+private const val OPEN_DOCUMENT_REQUEST_CODE = 0x33
+private const val TAG = "MainActivity"
+private const val LAST_OPENED_URI_KEY =
+    "com.example.android.actionopendocument.pref.LAST_OPENED_URI_KEY"
+

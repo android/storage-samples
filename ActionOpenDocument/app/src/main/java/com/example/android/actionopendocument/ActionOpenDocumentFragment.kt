@@ -29,6 +29,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import androidx.core.net.toUri
+import androidx.fragment.app.Fragment
 import java.io.FileDescriptor
 import java.io.IOException
 
@@ -36,56 +37,22 @@ import java.io.IOException
  * This fragment has a big [ImageView] that shows PDF pages, and 2 [Button]s to move between pages.
  * We use a [PdfRenderer] to render PDF pages as [Bitmap]s.
  */
-class ActionOpenDocumentFragment : androidx.fragment.app.Fragment(), View.OnClickListener {
+class ActionOpenDocumentFragment : Fragment() {
 
-    /**
-     * Key string for saving the state of current page index.
-     */
-    private val STATE_CURRENT_PAGE_INDEX = "current_page_index"
-
-    /**
-     * String for logging.
-     */
-    private val TAG = "ActionOpenDocumentFragment"
-
-    /**
-     * The initial page index of the PDF.
-     */
-    private val INITIAL_PAGE_INDEX = 0
-
-    /**
-     * [PdfRenderer] to render the PDF.
-     */
     private lateinit var pdfRenderer: PdfRenderer
-
-    /**
-     * Page that is currently shown on the screen.
-     */
     private lateinit var currentPage: PdfRenderer.Page
+    private var currentPageNumber: Int = INITIAL_PAGE_INDEX
 
-    /**
-     * [ImageView] that shows a PDF page as a [Bitmap].
-     */
-    private lateinit var imageView: ImageView
+    private lateinit var pdfPageView: ImageView
+    private lateinit var previousButton: Button
+    private lateinit var nextButton: Button
 
-    /**
-     * [Button] to move to the previous page.
-     */
-    private lateinit var btnPrevious: Button
-
-    /**
-     * [Button] to move to the next page.
-     */
-    private lateinit var btnNext: Button
-
-    /**
-     * PDF page index.
-     */
-    private var pageIndex: Int = INITIAL_PAGE_INDEX
-
-    private var documentUri: Uri? = null
+    val pageCount get() = pdfRenderer.pageCount
 
     companion object {
+        private const val DOCUMENT_URI_ARGUMENT =
+            "com.example.android.actionopendocument.args.DOCUMENT_URI_ARGUMENT"
+
         fun newInstance(documentUri: Uri): ActionOpenDocumentFragment {
 
             return ActionOpenDocumentFragment().apply {
@@ -101,34 +68,38 @@ class ActionOpenDocumentFragment : androidx.fragment.app.Fragment(), View.OnClic
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        documentUri = arguments?.getString(DOCUMENT_URI_ARGUMENT)?.toUri()
         return inflater.inflate(R.layout.fragment_pdf_renderer_basic, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        imageView = view.findViewById(R.id.image)
-        btnPrevious = view.findViewById<Button>(R.id.previous).also { it.setOnClickListener(this) }
-        btnNext = view.findViewById<Button>(R.id.next).also { it.setOnClickListener(this) }
+
+        pdfPageView = view.findViewById(R.id.image)
+        previousButton = view.findViewById<Button>(R.id.previous).apply {
+            setOnClickListener {
+                showPage(currentPage.index - 1)
+            }
+        }
+        nextButton = view.findViewById<Button>(R.id.next).apply {
+            setOnClickListener {
+                showPage(currentPage.index + 1)
+            }
+        }
 
         // If there is a savedInstanceState (screen orientations, etc.), we restore the page index.
-        if (savedInstanceState != null) {
-            pageIndex = savedInstanceState.getInt(STATE_CURRENT_PAGE_INDEX, INITIAL_PAGE_INDEX)
-        } else {
-            pageIndex = INITIAL_PAGE_INDEX
-        }
+        currentPageNumber = savedInstanceState?.getInt(CURRENT_PAGE_INDEX_KEY, INITIAL_PAGE_INDEX)
+            ?: INITIAL_PAGE_INDEX
     }
 
     override fun onStart() {
         super.onStart()
 
-        documentUri?.let { documentUri ->
-            try {
-                openRenderer(activity, documentUri)
-                showPage(pageIndex)
-            } catch (ioException: IOException) {
-                Log.d(TAG, "Exception opening document", ioException)
-            }
+        val documentUri = arguments?.getString(DOCUMENT_URI_ARGUMENT)?.toUri() ?: return
+        try {
+            openRenderer(activity, documentUri)
+            showPage(currentPageNumber)
+        } catch (ioException: IOException) {
+            Log.d(TAG, "Exception opening document", ioException)
         }
     }
 
@@ -142,7 +113,7 @@ class ActionOpenDocumentFragment : androidx.fragment.app.Fragment(), View.OnClic
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt(STATE_CURRENT_PAGE_INDEX, currentPage.index)
+        outState.putInt(CURRENT_PAGE_INDEX_KEY, currentPage.index)
         super.onSaveInstanceState(outState)
     }
 
@@ -162,7 +133,7 @@ class ActionOpenDocumentFragment : androidx.fragment.app.Fragment(), View.OnClic
 
         // This is the PdfRenderer we use to render the PDF.
         pdfRenderer = PdfRenderer(fileDescriptor)
-        currentPage = pdfRenderer.openPage(pageIndex)
+        currentPage = pdfRenderer.openPage(currentPageNumber)
     }
 
     /**
@@ -179,57 +150,41 @@ class ActionOpenDocumentFragment : androidx.fragment.app.Fragment(), View.OnClic
     /**
      * Shows the specified page of PDF to the screen.
      *
+     * The way [PdfRenderer] works is that it allows for "opening" a page with the method
+     * [PdfRenderer.openPage], which takes a (0 based) page number to open. This returns
+     * a [PdfRenderer.Page] object, which represents the content of this page.
+     *
+     * There are two ways to render the content of a [PdfRenderer.Page].
+     * [PdfRenderer.Page.RENDER_MODE_FOR_PRINT] and [PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY].
+     * Since we're displaying the data on the screen of the device, we'll use the later.
+     *
      * @param index The page index.
      */
     private fun showPage(index: Int) {
-        if (pdfRenderer.pageCount <= index) return
+        if (index < 0 || index >= pdfRenderer.pageCount) return
 
-        // Make sure to close the current page before opening another one.
         currentPage.close()
-        // Use `openPage` to open a specific page in PDF.
         currentPage = pdfRenderer.openPage(index)
+
         // Important: the destination bitmap must be ARGB (not RGB).
         val bitmap = createBitmap(currentPage.width, currentPage.height, Bitmap.Config.ARGB_8888)
-        // Here, we render the page onto the Bitmap.
-        // To render a portion of the page, use the second and third parameter. Pass nulls to get
-        // the default result.
-        // Pass either RENDER_MODE_FOR_DISPLAY or RENDER_MODE_FOR_PRINT for the last parameter.
-        currentPage.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-        // We are ready to show the Bitmap to user.
-        imageView.setImageBitmap(bitmap)
-        updateUi()
-    }
 
-    /**
-     * Updates the state of 2 control buttons in response to the current page index.
-     */
-    private fun updateUi() {
-        val index = currentPage.index
+        currentPage.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+        pdfPageView.setImageBitmap(bitmap)
+
         val pageCount = pdfRenderer.pageCount
-        btnPrevious.isEnabled = (0 != index)
-        btnNext.isEnabled = (index + 1 < pageCount)
+        previousButton.isEnabled = (0 != index)
+        nextButton.isEnabled = (index + 1 < pageCount)
         activity?.title = getString(R.string.app_name_with_index, index + 1, pageCount)
     }
-
-    /**
-     * Returns the page count of of the PDF.
-     */
-    fun getPageCount() = pdfRenderer.pageCount
-
-    override fun onClick(view: View) {
-        when (view.id) {
-            R.id.previous -> {
-                // Move to the previous page/
-                showPage(currentPage.index - 1)
-            }
-            R.id.next -> {
-                // Move to the next page.
-                showPage(currentPage.index + 1)
-            }
-        }
-    }
-
 }
 
-private const val DOCUMENT_URI_ARGUMENT =
-    "com.example.android.actionopendocument.args.DOCUMENT_URI_ARGUMENT"
+/**
+ * Key string for saving the state of current page index.
+ */
+private const val CURRENT_PAGE_INDEX_KEY =
+    "com.example.android.actionopendocument.state.CURRENT_PAGE_INDEX_KEY"
+
+private const val TAG = "ActionOpenDocumentFragment"
+private const val INITIAL_PAGE_INDEX = 0
+

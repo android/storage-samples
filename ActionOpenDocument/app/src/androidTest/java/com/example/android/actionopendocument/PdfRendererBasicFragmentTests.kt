@@ -22,7 +22,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.rule.ActivityTestRule
-import androidx.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import android.widget.Button
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -50,14 +50,14 @@ class ActionOpenDocumentFragmentTests {
     fun before() {
         activityTestRule.activity.supportFragmentManager.beginTransaction()
         fragment = activityTestRule.activity.supportFragmentManager
-            .findFragmentByTag(FRAGMENT_PDF_RENDERER_BASIC) as ActionOpenDocumentFragment
+            .findFragmentByTag(DOCUMENT_FRAGMENT_TAG) as ActionOpenDocumentFragment
     }
 
     @Test
     fun testActivityTitle() {
         // The title of the activity should be "ActionOpenDocument (1/10)" at first
         val expectedActivityTitle = activityTestRule.activity.getString(
-            R.string.app_name_with_index, 1, fragment.getPageCount()
+            R.string.app_name_with_index, 1, fragment.pageCount
         )
         assertEquals(expectedActivityTitle, activityTestRule.activity.title)
     }
@@ -83,7 +83,7 @@ class ActionOpenDocumentFragmentTests {
     @Test
     fun testButtons_nextDisabledLastPage() {
         setUpButtons()
-        val pageCount = fragment.getPageCount()
+        val pageCount = fragment.pageCount
         // Click till it reaches the last page
         turnPages(pageCount - 1)
         // Check the page count
@@ -102,7 +102,7 @@ class ActionOpenDocumentFragmentTests {
         activityTestRule.activity.requestedOrientation = SCREEN_ORIENTATION_PORTRAIT
         setUpButtons()
         turnPages(1)
-        val pageCount = fragment.getPageCount()
+        val pageCount = fragment.pageCount
         val expectedActivityTitle = activityTestRule.activity
             .getString(R.string.app_name_with_index, 2, pageCount)
         assertEquals(expectedActivityTitle, activityTestRule.activity.title)
