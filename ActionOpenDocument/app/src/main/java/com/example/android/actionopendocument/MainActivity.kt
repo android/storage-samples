@@ -26,6 +26,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.net.toUri
@@ -38,9 +41,16 @@ const val DOCUMENT_FRAGMENT_TAG = "com.example.android.actionopendocument.tags.D
  */
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var noDocumentView: ViewGroup
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_real)
+
+        noDocumentView = findViewById(R.id.no_document_view)
+        findViewById<Button>(R.id.open_file).setOnClickListener {
+            openDocumentPicker()
+        }
 
         getSharedPreferences(TAG, Context.MODE_PRIVATE).let { sharedPreferences ->
             if (sharedPreferences.contains(LAST_OPENED_URI_KEY)) {
@@ -66,30 +76,7 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
             R.id.action_open -> {
-                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                    /**
-                     * It's possible to limit the types of files by mime-type. Since this
-                     * app displays pages from a PDF file, we'll specify `application/pdf`
-                     * in `type`.
-                     * See [Intent.setType] for more details.
-                     */
-                    type = "application/pdf"
-
-                    /**
-                     * Because we'll want to use [ContentResolver.openFileDescriptor] to read
-                     * the data of whatever file is picked, we set [Intent.CATEGORY_OPENABLE]
-                     * to ensure this will succeed.
-                     */
-                    addCategory(Intent.CATEGORY_OPENABLE)
-
-                    /**
-                     * In this app we'll only display PDF documents, but if it were capable
-                     * of editing a document, we may want to also request
-                     * [Intent.FLAG_GRANT_WRITE_URI_PERMISSION].
-                     */
-                    flags = flags or Intent.FLAG_GRANT_READ_URI_PERMISSION
-                }
-                startActivityForResult(intent, OPEN_DOCUMENT_REQUEST_CODE)
+                openDocumentPicker()
                 return true
             }
             else -> super.onOptionsItemSelected(item)
@@ -122,6 +109,33 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun openDocumentPicker() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            /**
+             * It's possible to limit the types of files by mime-type. Since this
+             * app displays pages from a PDF file, we'll specify `application/pdf`
+             * in `type`.
+             * See [Intent.setType] for more details.
+             */
+            type = "application/pdf"
+
+            /**
+             * Because we'll want to use [ContentResolver.openFileDescriptor] to read
+             * the data of whatever file is picked, we set [Intent.CATEGORY_OPENABLE]
+             * to ensure this will succeed.
+             */
+            addCategory(Intent.CATEGORY_OPENABLE)
+
+            /**
+             * In this app we'll only display PDF documents, but if it were capable
+             * of editing a document, we may want to also request
+             * [Intent.FLAG_GRANT_WRITE_URI_PERMISSION].
+             */
+            flags = flags or Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
+        startActivityForResult(intent, OPEN_DOCUMENT_REQUEST_CODE)
+    }
+
     private fun openDocument(documentUri: Uri) {
         /**
          * Save the document to [SharedPreferences]. We're able to do this, and use the
@@ -136,6 +150,9 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.transaction {
             add(R.id.container, fragment, DOCUMENT_FRAGMENT_TAG)
         }
+
+        // Document is open, so get rid of the call to action view.
+        noDocumentView.visibility = View.GONE
     }
 }
 

@@ -22,9 +22,13 @@
     <string name="open_file">Open…</string>
     <string name="info">Info</string>
 
+    <string name="open_file_button">Open File</string>
+
     <string name="previous">Previous</string>
     <string name="next">Next</string>
     <string name="intro_message">
         This sample demonstrates how to use PdfRenderer to display PDF documents on the screen.
     </string>
+
+    <string name="open_call_to_action">Click "open" to view the contents of a PDF.</string>
 </resources>
