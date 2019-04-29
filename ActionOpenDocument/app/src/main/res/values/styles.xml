@@ -14,10 +14,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
+
 <resources>
+
     <style name="Theme.ActionOpenDocument" parent="Theme.MaterialComponents.Light.DarkActionBar">
-        <item name="colorPrimary">#F44336</item>
-        <item name="colorPrimaryDark">#D32F2F</item>
-        <item name="colorAccent">#00BCD4</item>
+        <item name="colorPrimary">#8916a6</item>
+        <item name="colorPrimaryDark">#570076</item>
+        <item name="colorAccent">#33a616</item>
     </style>
 </resources>
