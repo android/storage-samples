@@ -13,7 +13,7 @@ Samples
 [ActionOpenDocument](ActionOpenDocument/): A sample PDF viewer app that demonstrates the use of
 `Intent.ACTION_OPEN_DOCUMENT`.
 
-[ktFiles](ktFiles/): An example file manager app that utilizes
+[ActionOpenDocumentTree](ActionOpenDocumentTree/): An example file manager app that utilizes
 `Intent.ACTION_OPEN_DOCUMENT_TREE` to allow a user to browse and open files.
 
 License

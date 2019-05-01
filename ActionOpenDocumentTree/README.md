@@ -1,5 +1,5 @@
 
-# Android ktFiles Sample
+# Android ACTION_OPEN_DOCUMENT_TREE Sample
 
 A proof of concept file manager utilizing the
 [ACTION_OPEN_DOCUMENT_TREE](https://developer.android.com/reference/android/content/Intent.html#ACTION_OPEN_DOCUMENT_TREE)
