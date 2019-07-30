@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!--
+ Copyright 2019 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.android.sharingshortcuts"
+    android:versionCode="1"
+    android:versionName="1.0">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/SharingShortcutsTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Reference resource file where the app's shortcuts are defined -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity>
+
+        <activity
+            android:name=".SendMessageActivity"
+            android:label="@string/app_name"
+            android:theme="@style/SharingShortcutsDialogTheme">
+            <!-- This activity can respond to Intents of type SEND and with text/plain data -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <!-- Only needed if you import the sharetarget AndroidX library that provides
+                 backwards compatibility with the old DirectShare API.
+                 The activity that receives the Sharing Shortcut intent needs to be taken into
+                 account with this chooser target provider. -->
+            <meta-data
+                android:name="android.service.chooser.chooser_target_service"
+                android:value="androidx.sharetarget.ChooserTargetServiceCompat" />
+        </activity>
+
+        <activity
+            android:name=".SelectContactActivity"
+            android:label="@string/app_name"
+            android:theme="@style/SharingShortcutsDialogTheme" />
+
+        <!-- Only needed if you want to add a thumbnail to the direct share.
+            FileProvider is a subclass of ContentProvider that facilitates secure sharing.
+            Here we specify a FileProvider for our app. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.android.sharingshortcuts.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <!-- Specify the directories the FileProvider can generate content URIs for. -->
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+    </application>
+
+</manifest>
