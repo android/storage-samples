@@ -24,6 +24,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.pm.ShortcutManagerCompat;
+
 /**
  * Provides the UI for sharing a text with a {@link Contact}.
  */
@@ -106,8 +108,8 @@ public class SendMessageActivity extends Activity {
             mBody = intent.getStringExtra(Intent.EXTRA_TEXT);
             // The intent comes from Direct share
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
-                    && intent.hasExtra(Intent.EXTRA_SHORTCUT_ID)) {
-                String shortcutId = intent.getStringExtra(Intent.EXTRA_SHORTCUT_ID);
+                    && intent.hasExtra(ShortcutManagerCompat.EXTRA_SHORTCUT_ID)) {
+                String shortcutId = intent.getStringExtra(ShortcutManagerCompat.EXTRA_SHORTCUT_ID);
                 mContactId = Integer.valueOf(shortcutId);
             } else {
                 // The text was shared and the user chose our app
