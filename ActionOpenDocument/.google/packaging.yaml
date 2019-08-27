@@ -29,5 +29,5 @@ icon:         screenshots/icon-web.png
 apiRefs:
     - android:android.content.ContentResolver
     - android:android.provider.DocumentsContract
-    - android.graphics.pdf.PdfRenderer
+    - android:android.graphics.pdf.PdfRenderer
 license: apache2
