@@ -20,7 +20,7 @@
 ---
 status:       PUBLISHED
 technologies: [Android, Storage Access Framework]
-categories:   [Content]
+categories:   [Storage]
 languages:    [Kotlin]
 solutions:    [Mobile]
 github:       android/storage
