@@ -19,7 +19,7 @@
 ---
 status:       PUBLISHED
 technologies: [Android]
-categories:   [Content]
+categories:   [Storage]
 languages:    [Java]
 solutions:    [Mobile]
 github:       android/storage
