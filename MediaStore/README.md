@@ -16,10 +16,6 @@ This sample demonstrates how to use the [Media Store][1] to display items in the
 [Images][2] collection. This requires [`READ_EXTERNAL_STORAGE`][3] permission since it accesses
 files that other apps created and contributed to the Media Store. 
 
-[1]: https://developer.android.com/reference/android/provider/MediaStore
-[2]: https://developer.android.com/reference/android/provider/MediaStore.Images
-[3]: https://developer.android.com/reference/android/Manifest.permission.html#READ_EXTERNAL_STORAGE
-
 Pre-requisites
 --------------
 
@@ -30,6 +26,8 @@ Screenshots
 -------------
 
 <img src="screenshots/app.png" height="400" alt="Screenshot"/>
+
+Photos by [Hannah Troupe][4] on [Unsplash][5].
 
 Getting Started
 ---------------
@@ -67,3 +65,9 @@ distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 License for the specific language governing permissions and limitations under
 the License.
+
+[1]: https://developer.android.com/reference/android/provider/MediaStore
+[2]: https://developer.android.com/reference/android/provider/MediaStore.Images
+[3]: https://developer.android.com/reference/android/Manifest.permission.html#READ_EXTERNAL_STORAGE
+[4]: https://unsplash.com/@htroupe?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText
+[5]: https://unsplash.com/@htroupe?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText
