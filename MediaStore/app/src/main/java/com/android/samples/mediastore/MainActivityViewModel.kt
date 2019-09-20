@@ -20,8 +20,8 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ContentProvider
 import android.content.ContentResolver
+import android.content.ContentUris
 import android.database.Cursor
-import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -154,9 +154,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                      * query to get the items is the base, and the ID is the document to
                      * request there.
                      */
-                    val contentUri = Uri.withAppendedPath(
+                    val contentUri = ContentUris.withAppendedId(
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        id.toString()
+                        id
                     )
 
                     val image = MediaStoreImage(id, displayName, dateTaken, contentUri)
@@ -179,6 +179,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      * to format the date to display, just to specify a format to use to parse it, and so the
      * locale warning doesn't apply.
      */
+    @Suppress("SameParameterValue")
     @SuppressLint("SimpleDateFormat")
     private fun dateToTimestamp(day: Int, month: Int, year: Int): Long =
         SimpleDateFormat("dd.MM.yyyy").let { formatter ->
