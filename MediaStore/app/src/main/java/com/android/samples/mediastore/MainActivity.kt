@@ -92,23 +92,23 @@ class MainActivity : AppCompatActivity() {
                     showImages()
                 } else {
                     // If we weren't granted the permission, check to see if we should show
-                    // rational for the permission.
-                    val showRational =
+                    // rationale for the permission.
+                    val showRationale =
                         ActivityCompat.shouldShowRequestPermissionRationale(
                             this,
                             Manifest.permission.READ_EXTERNAL_STORAGE
                         )
 
                     /**
-                     * If we should show the rational for requesting storage permission, then
-                     * we'll show [ActivityMainBinding.permissionRationalView] which does this.
+                     * If we should show the rationale for requesting storage permission, then
+                     * we'll show [ActivityMainBinding.permissionRationaleView] which does this.
                      *
-                     * If `showRational` is false, this means the user has not only denied
+                     * If `showRationale` is false, this means the user has not only denied
                      * the permission, but they've clicked "Don't ask again". In this case
                      * we send the user to the settings page for the app so they can grant
                      * the permission (Yay!) or uninstall the app.
                      */
-                    if (showRational) {
+                    if (showRationale) {
                         showNoAccess()
                     } else {
                         goToSettings()
@@ -122,12 +122,12 @@ class MainActivity : AppCompatActivity() {
     private fun showImages() {
         viewModel.loadImages()
         binding.welcomeView.visibility = View.GONE
-        binding.permissionRationalView.visibility = View.GONE
+        binding.permissionRationaleView.visibility = View.GONE
     }
 
     private fun showNoAccess() {
         binding.welcomeView.visibility = View.GONE
-        binding.permissionRationalView.visibility = View.VISIBLE
+        binding.permissionRationaleView.visibility = View.VISIBLE
     }
 
     private fun openMediaStore() {
