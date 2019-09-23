@@ -21,7 +21,10 @@ import android.app.Application
 import android.content.ContentProvider
 import android.content.ContentResolver
 import android.content.ContentUris
+import android.database.ContentObserver
 import android.database.Cursor
+import android.net.Uri
+import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -40,6 +43,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val _images = MutableLiveData<List<MediaStoreImage>>()
     val images: LiveData<List<MediaStoreImage>> get() = _images
 
+    private var contentObserver: ContentObserver? = null
+
     /**
      * Performs a one shot load of images from [MediaStore.Images.Media.EXTERNAL_CONTENT_URI] into
      * the [_images] [LiveData] above.
@@ -48,6 +53,14 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         viewModelScope.launch {
             val imageList = queryImages()
             _images.postValue(imageList)
+
+            if (contentObserver == null) {
+                contentObserver = context.contentResolver.registerObserver(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                ) {
+                    loadImages()
+                }
+            }
         }
     }
 
@@ -173,7 +186,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
     /**
-     * Convience method to convert a day/month/year date into a UNIX timestamp.
+     * Convenience method to convert a day/month/year date into a UNIX timestamp.
      *
      * We're suppressing the lint warning because we're not actually using the date formatter
      * to format the date to display, just to specify a format to use to parse it, and so the
@@ -186,6 +199,32 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             formatter.parse("$day.$month.$year")?.time ?: 0
         }
 
+    /**
+     * Since we register a [ContentObserver], we want to unregister this when the `ViewModel`
+     * is being released.
+     */
+    override fun onCleared() {
+        contentObserver?.let {
+            context.contentResolver.unregisterContentObserver(it)
+        }
+    }
 }
+
+/**
+ * Convenience extension method to register a [ContentObserver] given a lambda.
+ */
+private fun ContentResolver.registerObserver(
+    uri: Uri,
+    observer: (selfChange: Boolean) -> Unit
+): ContentObserver {
+    val contentObserver = object : ContentObserver(Handler()) {
+        override fun onChange(selfChange: Boolean) {
+            observer(selfChange)
+        }
+    }
+    registerContentObserver(uri, true, contentObserver)
+    return contentObserver
+}
+
 
 private const val TAG = "MainActivityVM"
