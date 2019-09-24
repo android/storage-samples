@@ -19,7 +19,7 @@ package com.example.android.storageclient;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
+import androidx.fragment.app.FragmentTransaction;
 import android.view.Menu;
 
 import com.example.android.common.activities.SampleActivityBase;
