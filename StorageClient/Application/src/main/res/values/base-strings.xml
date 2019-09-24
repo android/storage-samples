@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+<?xml version="1.0" encoding="UTF-8"?><!--
  Copyright 2013 The Android Open Source Project
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,15 +17,9 @@
 <resources>
     <string name="app_name">StorageClient</string>
     <string name="intro_message">
-        <![CDATA[
-        
-            
-            Using the OPEN_DOCUMENT intent, a client app can access a list of Document Providers
-            on the device, and choose a file from any of them.
-            \n\nTo demonstrate this, click the button below to open up the Storage Access Framework
-            interface, and choose an image on your device.  It will be displayed in this app.
-            
-        
-        ]]>
+        Using the OPEN_DOCUMENT intent, a client app can access a list of Document Providers
+        on the device, and choose a file from any of them.
+        \n\nTo demonstrate this, click the button below to open up the Storage Access Framework
+        interface, and choose an image on your device.  It will be displayed in this app.
     </string>
 </resources>
