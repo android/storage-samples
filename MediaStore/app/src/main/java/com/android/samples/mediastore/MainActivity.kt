@@ -69,13 +69,7 @@ class MainActivity : AppCompatActivity() {
 
         if (!haveStoragePermission()) {
             binding.welcomeView.visibility = View.VISIBLE
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        if (haveStoragePermission()) {
+        } else {
             showImages()
         }
     }
