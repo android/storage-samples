@@ -38,4 +38,6 @@ data class MediaStoreImage(
                 oldItem == newItem
         }
     }
+
+    val requestCode get() = ((id and 0x0fff) or 0x1000).toInt()
 }

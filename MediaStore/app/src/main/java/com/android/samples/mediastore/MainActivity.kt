@@ -17,6 +17,8 @@
 package com.android.samples.mediastore
 
 import android.Manifest
+import android.app.Activity
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
@@ -37,6 +39,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.android.samples.mediastore.databinding.ActivityMainBinding
 import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /** The request code for requesting [Manifest.permission.READ_EXTERNAL_STORAGE] permission. */
 private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
@@ -50,11 +56,18 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
 
+    private val activityScope = CoroutineScope(Dispatchers.Main)
+
+    private var pendingDeleteImage: MediaStoreImage? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        val galleryAdapter = GalleryAdapter()
+        val galleryAdapter = GalleryAdapter { image ->
+            deleteImage(image)
+        }
+
         binding.gallery.also { view ->
             view.layoutManager = GridLayoutManager(this, 3)
             view.adapter = galleryAdapter
@@ -113,6 +126,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            pendingDeleteImage?.let { image ->
+                // If the request code matches the code for the pending image, delete it.
+                if (requestCode == image.requestCode) {
+                    activityScope.launch {
+                        viewModel.deleteImage(image)
+                    }
+                }
+            }
+        }
+        pendingDeleteImage = null
+    }
+
     private fun showImages() {
         viewModel.loadImages()
         binding.welcomeView.visibility = View.GONE
@@ -161,20 +189,43 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun deleteImage(image: MediaStoreImage) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.delete_title)
+            .setMessage(getString(R.string.delete_message, image.displayName))
+            .setPositiveButton(R.string.delete_positive) { _: DialogInterface, _: Int ->
+                activityScope.launch {
+                    viewModel.deleteImage(image)?.let { sender ->
+                        // On Android 10+, if the app doesn't have permission to modify
+                        // or delete an item, it returns an `IntentSender` that we can
+                        // use here to prompt the user to grant permission to delete (or modify)
+                        // the image.
+                        pendingDeleteImage = image
+                        startIntentSenderForResult(sender, image.requestCode, null, 0, 0, 0, null)
+                    }
+                }
+            }
+            .setNegativeButton(R.string.delete_negative) { _: DialogInterface, _: Int ->
+                // Nothing to do
+            }
+            .show()
+    }
+
     /**
      * A [ListAdapter] for [MediaStoreImage]s.
      */
-    private inner class GalleryAdapter :
+    private inner class GalleryAdapter(val onClick: (MediaStoreImage) -> Unit) :
         ListAdapter<MediaStoreImage, ImageViewHolder>(MediaStoreImage.DiffCallback) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(R.layout.gallery_layout, parent, false)
-            return ImageViewHolder(view)
+            return ImageViewHolder(view, onClick)
         }
 
         override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
             val mediaStoreImage = getItem(position)
+            holder.rootView.tag = mediaStoreImage
 
             Glide.with(holder.imageView)
                 .load(mediaStoreImage.contentUri)
@@ -182,13 +233,21 @@ class MainActivity : AppCompatActivity() {
                 .centerCrop()
                 .into(holder.imageView)
         }
-
     }
 
     /**
      * Basic [RecyclerView.ViewHolder] for our gallery.
      */
-    private class ImageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private class ImageViewHolder(view: View, onClick: (MediaStoreImage) -> Unit) :
+        RecyclerView.ViewHolder(view) {
+        val rootView = view
         val imageView: ImageView = view.findViewById(R.id.image)
+
+        init {
+            imageView.setOnClickListener {
+                val image = rootView.tag as? MediaStoreImage ?: return@setOnClickListener
+                onClick(image)
+            }
+        }
     }
 }
