@@ -184,7 +184,10 @@ class MainActivity : AppCompatActivity() {
      */
     private fun requestPermission() {
         if (!haveStoragePermission()) {
-            val permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            val permissions = arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
             ActivityCompat.requestPermissions(this, permissions, READ_EXTERNAL_STORAGE_REQUEST)
         }
     }
