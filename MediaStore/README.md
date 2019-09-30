@@ -1,13 +1,13 @@
 
 Android Media Store Sample
-========================================
+==========================
 
 <div align="center">
 <img src="screenshots/icon-web.png" height="256" alt="App Icon"/>
 </div>
 
-This sample demonstrates how to display PDF document on screen using
-the PdfRenderer introduced in [Android 5.0 Lollipop][4].
+This sample demonstrates how to use Android's [MediaStore][#4] to locate and display the users
+images in a RecyclerView.
 
 Introduction
 ------------
@@ -19,8 +19,8 @@ files that other apps created and contributed to the Media Store.
 Pre-requisites
 --------------
 
-- Android SDK 28
-- Android Device/Emulator API 21+
+- Android SDK 29
+- Android Device/Emulator API 16+
 
 Screenshots
 -------------
@@ -69,5 +69,5 @@ the License.
 [1]: https://developer.android.com/reference/android/provider/MediaStore
 [2]: https://developer.android.com/reference/android/provider/MediaStore.Images
 [3]: https://developer.android.com/reference/android/Manifest.permission.html#READ_EXTERNAL_STORAGE
-[4]: https://unsplash.com/@htroupe?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText
+[4]: https://developer.android.com/reference/android/provider/MediaStore
 [5]: https://unsplash.com/@htroupe?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText
