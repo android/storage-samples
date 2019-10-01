@@ -48,6 +48,12 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     private var contentObserver: ContentObserver? = null
 
+    var pendingDeleteImage: MediaStoreImage? = null
+        private set
+
+    private val _permissionNeededForDelete = MutableLiveData<IntentSender?>()
+    val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
+
     /**
      * Performs a one shot load of images from [MediaStore.Images.Media.EXTERNAL_CONTENT_URI] into
      * the [_images] [LiveData] above.
@@ -67,37 +73,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    suspend fun deleteImage(image: MediaStoreImage): IntentSender? {
-        return withContext(Dispatchers.IO) {
-            try {
-                /**
-                 * In [Build.VERSION_CODES.Q] and above, it isn't possible to modify
-                 * or delete items in MediaStore directly, and explicit permission
-                 * must usually be obtained to do this.
-                 *
-                 * The way it works is the OS will throw a [RecoverableSecurityException],
-                 * which we can catch here. Inside there's an [IntentSender] which the
-                 * activity can use to prompt the user to grant permission to the item
-                 * so it can be either updated or deleted.
-                 */
-                context.contentResolver.delete(
-                    image.contentUri,
-                    "${MediaStore.Images.Media._ID} = ?",
-                    arrayOf(image.id.toString())
-                )
-
-                // Rename succeeded.
-                null
-            } catch (securityException: SecurityException) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val recoverableSecurityException =
-                        securityException as? RecoverableSecurityException
-                            ?: throw RuntimeException(securityException.message, securityException)
-                    recoverableSecurityException.userAction.actionIntent.intentSender
-                } else {
-                    throw RuntimeException(securityException.message, securityException)
-                }
-            }
+    fun deleteImage(image: MediaStoreImage) {
+        viewModelScope.launch {
+            performDeleteImage(image)
         }
     }
 
@@ -220,6 +198,48 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
         Log.v(TAG, "Found ${images.size} images")
         return images
+    }
+
+    private suspend fun performDeleteImage(image: MediaStoreImage) {
+        // Starting a delete clears the previous pending image.
+        pendingDeleteImage = image
+
+        withContext(Dispatchers.IO) {
+            try {
+                /**
+                 * In [Build.VERSION_CODES.Q] and above, it isn't possible to modify
+                 * or delete items in MediaStore directly, and explicit permission
+                 * must usually be obtained to do this.
+                 *
+                 * The way it works is the OS will throw a [RecoverableSecurityException],
+                 * which we can catch here. Inside there's an [IntentSender] which the
+                 * activity can use to prompt the user to grant permission to the item
+                 * so it can be either updated or deleted.
+                 */
+                context.contentResolver.delete(
+                    image.contentUri,
+                    "${MediaStore.Images.Media._ID} = ?",
+                    arrayOf(image.id.toString())
+                )
+
+                // Delete was successful.
+                pendingDeleteImage = null
+            } catch (securityException: SecurityException) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val recoverableSecurityException =
+                        securityException as? RecoverableSecurityException
+                            ?: throw RuntimeException(securityException.message, securityException)
+
+                    // Signal to the Activity that it needs to request permission and
+                    // try the delete again if it succeeds.
+                    _permissionNeededForDelete.postValue(
+                        recoverableSecurityException.userAction.actionIntent.intentSender
+                    )
+                } else {
+                    throw RuntimeException(securityException.message, securityException)
+                }
+            }
+        }
     }
 
     /**

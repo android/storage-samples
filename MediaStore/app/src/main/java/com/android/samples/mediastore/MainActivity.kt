@@ -20,6 +20,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Bundle
@@ -40,12 +41,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.samples.mediastore.databinding.ActivityMainBinding
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 /** The request code for requesting [Manifest.permission.READ_EXTERNAL_STORAGE] permission. */
 private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
+
+/**
+ * Code used witn [IntentSender] to request user permission to delete an image with scoped storage.
+ */
+private const val DELETE_PERMISSION_REQUEST = 0x1033
 
 /**
  * MainActivity for the sample that displays a gallery of images in a [RecyclerView] using
@@ -55,10 +58,6 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainActivityViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
-
-    private val activityScope = CoroutineScope(Dispatchers.Main)
-
-    private var pendingDeleteImage: MediaStoreImage? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,6 +74,16 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.images.observe(this, Observer<List<MediaStoreImage>> { images ->
             galleryAdapter.submitList(images)
+        })
+
+        viewModel.permissionNeededForDelete.observe(this, Observer { intentSender ->
+            intentSender?.let { sender ->
+                // On Android 10+, if the app doesn't have permission to modify
+                // or delete an item, it returns an `IntentSender` that we can
+                // use here to prompt the user to grant permission to delete (or modify)
+                // the image.
+                startIntentSenderForResult(sender, DELETE_PERMISSION_REQUEST, null, 0, 0, 0, null)
+            }
         })
 
         binding.openAlbum.setOnClickListener { openMediaStore() }
@@ -128,17 +137,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            pendingDeleteImage?.let { image ->
-                // If the request code matches the code for the pending image, delete it.
-                if (requestCode == image.requestCode) {
-                    activityScope.launch {
-                        viewModel.deleteImage(image)
-                    }
-                }
+        if (resultCode == Activity.RESULT_OK && requestCode == DELETE_PERMISSION_REQUEST) {
+            viewModel.pendingDeleteImage?.let { image ->
+                viewModel.deleteImage(image)
             }
         }
-        pendingDeleteImage = null
     }
 
     private fun showImages() {
@@ -197,18 +200,10 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.delete_title)
             .setMessage(getString(R.string.delete_message, image.displayName))
             .setPositiveButton(R.string.delete_positive) { _: DialogInterface, _: Int ->
-                activityScope.launch {
-                    viewModel.deleteImage(image)?.let { sender ->
-                        // On Android 10+, if the app doesn't have permission to modify
-                        // or delete an item, it returns an `IntentSender` that we can
-                        // use here to prompt the user to grant permission to delete (or modify)
-                        // the image.
-                        pendingDeleteImage = image
-                        startIntentSenderForResult(sender, image.requestCode, null, 0, 0, 0, null)
-                    }
-                }
+                viewModel.deleteImage(image)
             }
-            .setNegativeButton(R.string.delete_negative) { _: DialogInterface, _: Int ->
+            .setNegativeButton(R.string.delete_negative)
+            { _: DialogInterface, _: Int ->
                 // Nothing to do
             }
             .show()
@@ -237,20 +232,21 @@ class MainActivity : AppCompatActivity() {
                 .into(holder.imageView)
         }
     }
+}
 
-    /**
-     * Basic [RecyclerView.ViewHolder] for our gallery.
-     */
-    private class ImageViewHolder(view: View, onClick: (MediaStoreImage) -> Unit) :
-        RecyclerView.ViewHolder(view) {
-        val rootView = view
-        val imageView: ImageView = view.findViewById(R.id.image)
+/**
+ * Basic [RecyclerView.ViewHolder] for our gallery.
+ */
+private class ImageViewHolder(view: View, onClick: (MediaStoreImage) -> Unit) :
+    RecyclerView.ViewHolder(view) {
+    val rootView = view
+    val imageView: ImageView = view.findViewById(R.id.image)
 
-        init {
-            imageView.setOnClickListener {
-                val image = rootView.tag as? MediaStoreImage ?: return@setOnClickListener
-                onClick(image)
-            }
+    init {
+        imageView.setOnClickListener {
+            val image = rootView.tag as? MediaStoreImage ?: return@setOnClickListener
+            onClick(image)
         }
     }
 }
+
