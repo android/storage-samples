@@ -18,12 +18,15 @@ package com.android.samples.mediastore
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.app.RecoverableSecurityException
 import android.content.ContentProvider
 import android.content.ContentResolver
 import android.content.ContentUris
+import android.content.IntentSender
 import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
@@ -38,12 +41,14 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
-    private val context = application.applicationContext
-
     private val _images = MutableLiveData<List<MediaStoreImage>>()
     val images: LiveData<List<MediaStoreImage>> get() = _images
 
     private var contentObserver: ContentObserver? = null
+
+    private var pendingDeleteImage: MediaStoreImage? = null
+    private val _permissionNeededForDelete = MutableLiveData<IntentSender?>()
+    val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
 
     /**
      * Performs a one shot load of images from [MediaStore.Images.Media.EXTERNAL_CONTENT_URI] into
@@ -55,12 +60,25 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             _images.postValue(imageList)
 
             if (contentObserver == null) {
-                contentObserver = context.contentResolver.registerObserver(
+                contentObserver = getApplication<Application>().contentResolver.registerObserver(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 ) {
                     loadImages()
                 }
             }
+        }
+    }
+
+    fun deleteImage(image: MediaStoreImage) {
+        viewModelScope.launch {
+            performDeleteImage(image)
+        }
+    }
+
+    fun deletePendingImage() {
+        pendingDeleteImage?.let { image ->
+            pendingDeleteImage = null
+            deleteImage(image)
         }
     }
 
@@ -117,7 +135,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
              */
             val sortOrder = "${MediaStore.Images.Media.DATE_TAKEN} DESC"
 
-            context.contentResolver.query(
+            getApplication<Application>().contentResolver.query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 projection,
                 selection,
@@ -185,6 +203,43 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         return images
     }
 
+    private suspend fun performDeleteImage(image: MediaStoreImage) {
+        withContext(Dispatchers.IO) {
+            try {
+                /**
+                 * In [Build.VERSION_CODES.Q] and above, it isn't possible to modify
+                 * or delete items in MediaStore directly, and explicit permission
+                 * must usually be obtained to do this.
+                 *
+                 * The way it works is the OS will throw a [RecoverableSecurityException],
+                 * which we can catch here. Inside there's an [IntentSender] which the
+                 * activity can use to prompt the user to grant permission to the item
+                 * so it can be either updated or deleted.
+                 */
+                getApplication<Application>().contentResolver.delete(
+                    image.contentUri,
+                    "${MediaStore.Images.Media._ID} = ?",
+                    arrayOf(image.id.toString())
+                )
+            } catch (securityException: SecurityException) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val recoverableSecurityException =
+                        securityException as? RecoverableSecurityException
+                            ?: throw securityException
+
+                    // Signal to the Activity that it needs to request permission and
+                    // try the delete again if it succeeds.
+                    pendingDeleteImage = image
+                    _permissionNeededForDelete.postValue(
+                        recoverableSecurityException.userAction.actionIntent.intentSender
+                    )
+                } else {
+                    throw securityException
+                }
+            }
+        }
+    }
+
     /**
      * Convenience method to convert a day/month/year date into a UNIX timestamp.
      *
@@ -205,7 +260,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      */
     override fun onCleared() {
         contentObserver?.let {
-            context.contentResolver.unregisterContentObserver(it)
+            getApplication<Application>().contentResolver.unregisterContentObserver(it)
         }
     }
 }
