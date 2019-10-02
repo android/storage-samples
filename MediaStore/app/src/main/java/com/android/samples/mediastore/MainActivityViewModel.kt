@@ -225,7 +225,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     val recoverableSecurityException =
                         securityException as? RecoverableSecurityException
-                            ?: throw RuntimeException(securityException.message, securityException)
+                            ?: throw securityException
 
                     // Signal to the Activity that it needs to request permission and
                     // try the delete again if it succeeds.
@@ -234,7 +234,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                         recoverableSecurityException.userAction.actionIntent.intentSender
                     )
                 } else {
-                    throw RuntimeException(securityException.message, securityException)
+                    throw securityException
                 }
             }
         }
