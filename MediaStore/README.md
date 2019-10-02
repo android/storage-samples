@@ -6,7 +6,7 @@ Android Media Store Sample
 <img src="screenshots/icon-web.png" height="256" alt="App Icon"/>
 </div>
 
-This sample demonstrates how to use Android's [MediaStore][#4] to locate and display the users
+This sample demonstrates how to use Android's [MediaStore][4] to locate and display the users
 images in a RecyclerView.
 
 Introduction
