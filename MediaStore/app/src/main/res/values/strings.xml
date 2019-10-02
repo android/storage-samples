@@ -25,8 +25,8 @@
 
     <string name="permission_not_granted">App requires access to storage to access items stored in MediaStore.</string>
 
-    <string name="delete_title">Delete?</string>
-    <string name="delete_message">Delete %1$s?</string>
-    <string name="delete_positive">Delete</string>
-    <string name="delete_negative">Cancel</string>
+    <string name="delete_dialog_title">Delete?</string>
+    <string name="delete_dialog_message">Delete %1$s?</string>
+    <string name="delete_dialog_positive">Delete</string>
+    <string name="delete_dialog_negative">Cancel</string>
 </resources>

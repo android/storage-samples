@@ -41,16 +41,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
-    private val context = application.applicationContext
-
     private val _images = MutableLiveData<List<MediaStoreImage>>()
     val images: LiveData<List<MediaStoreImage>> get() = _images
 
     private var contentObserver: ContentObserver? = null
 
-    var pendingDeleteImage: MediaStoreImage? = null
-        private set
-
+    private var pendingDeleteImage: MediaStoreImage? = null
     private val _permissionNeededForDelete = MutableLiveData<IntentSender?>()
     val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
 
@@ -64,7 +60,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             _images.postValue(imageList)
 
             if (contentObserver == null) {
-                contentObserver = context.contentResolver.registerObserver(
+                contentObserver = getApplication<Application>().contentResolver.registerObserver(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 ) {
                     loadImages()
@@ -76,6 +72,13 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     fun deleteImage(image: MediaStoreImage) {
         viewModelScope.launch {
             performDeleteImage(image)
+        }
+    }
+
+    fun deletePendingImage() {
+        pendingDeleteImage?.let { image ->
+            pendingDeleteImage = null
+            deleteImage(image)
         }
     }
 
@@ -132,7 +135,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
              */
             val sortOrder = "${MediaStore.Images.Media.DATE_TAKEN} DESC"
 
-            context.contentResolver.query(
+            getApplication<Application>().contentResolver.query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 projection,
                 selection,
@@ -201,9 +204,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private suspend fun performDeleteImage(image: MediaStoreImage) {
-        // Starting a delete clears the previous pending image.
-        pendingDeleteImage = image
-
         withContext(Dispatchers.IO) {
             try {
                 /**
@@ -216,14 +216,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                  * activity can use to prompt the user to grant permission to the item
                  * so it can be either updated or deleted.
                  */
-                context.contentResolver.delete(
+                getApplication<Application>().contentResolver.delete(
                     image.contentUri,
                     "${MediaStore.Images.Media._ID} = ?",
                     arrayOf(image.id.toString())
                 )
-
-                // Delete was successful.
-                pendingDeleteImage = null
             } catch (securityException: SecurityException) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     val recoverableSecurityException =
@@ -232,6 +229,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
                     // Signal to the Activity that it needs to request permission and
                     // try the delete again if it succeeds.
+                    pendingDeleteImage = image
                     _permissionNeededForDelete.postValue(
                         recoverableSecurityException.userAction.actionIntent.intentSender
                     )
@@ -262,7 +260,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      */
     override fun onCleared() {
         contentObserver?.let {
-            context.contentResolver.unregisterContentObserver(it)
+            getApplication<Application>().contentResolver.unregisterContentObserver(it)
         }
     }
 }

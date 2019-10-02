@@ -46,7 +46,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
 
 /**
- * Code used witn [IntentSender] to request user permission to delete an image with scoped storage.
+ * Code used with [IntentSender] to request user permission to delete an image with scoped storage.
  */
 private const val DELETE_PERMISSION_REQUEST = 0x1033
 
@@ -77,12 +77,20 @@ class MainActivity : AppCompatActivity() {
         })
 
         viewModel.permissionNeededForDelete.observe(this, Observer { intentSender ->
-            intentSender?.let { sender ->
+            intentSender?.let {
                 // On Android 10+, if the app doesn't have permission to modify
                 // or delete an item, it returns an `IntentSender` that we can
                 // use here to prompt the user to grant permission to delete (or modify)
                 // the image.
-                startIntentSenderForResult(sender, DELETE_PERMISSION_REQUEST, null, 0, 0, 0, null)
+                startIntentSenderForResult(
+                    intentSender,
+                    DELETE_PERMISSION_REQUEST,
+                    null,
+                    0,
+                    0,
+                    0,
+                    null
+                )
             }
         })
 
@@ -138,9 +146,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == DELETE_PERMISSION_REQUEST) {
-            viewModel.pendingDeleteImage?.let { image ->
-                viewModel.deleteImage(image)
-            }
+            viewModel.deletePendingImage()
         }
     }
 
@@ -197,14 +203,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun deleteImage(image: MediaStoreImage) {
         MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.delete_title)
-            .setMessage(getString(R.string.delete_message, image.displayName))
-            .setPositiveButton(R.string.delete_positive) { _: DialogInterface, _: Int ->
+            .setTitle(R.string.delete_dialog_title)
+            .setMessage(getString(R.string.delete_dialog_message, image.displayName))
+            .setPositiveButton(R.string.delete_dialog_positive) { _: DialogInterface, _: Int ->
                 viewModel.deleteImage(image)
             }
-            .setNegativeButton(R.string.delete_negative)
-            { _: DialogInterface, _: Int ->
-                // Nothing to do
+            .setNegativeButton(R.string.delete_dialog_negative) { dialog: DialogInterface, _: Int ->
+                dialog.dismiss()
             }
             .show()
     }

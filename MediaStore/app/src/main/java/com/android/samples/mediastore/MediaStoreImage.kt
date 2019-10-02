@@ -18,7 +18,7 @@ package com.android.samples.mediastore
 
 import android.net.Uri
 import androidx.recyclerview.widget.DiffUtil
-import java.util.Date
+import java.util.*
 
 /**
  * Simple data class to hold information about an image included in the device's MediaStore.
@@ -38,6 +38,4 @@ data class MediaStoreImage(
                 oldItem == newItem
         }
     }
-
-    val requestCode get() = ((id and 0x0fff) or 0x1000).toInt()
 }
