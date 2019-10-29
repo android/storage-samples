@@ -74,7 +74,6 @@ public class MainActivity extends SampleActivityBase {
                 .findFragmentById(R.id.log_fragment);
         msgFilter.setNext(logFragment.getLogView());
         logFragment.getLogView().setTextAppearance(this, R.style.Log);
-        logFragment.getLogView().setBackgroundColor(Color.WHITE);
 
 
         Log.i(TAG, "Ready");
