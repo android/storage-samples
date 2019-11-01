@@ -109,7 +109,7 @@ class ImageClientFragment : Fragment() {
 
         override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
             val extras = cursor.extras
-            val totalSize = extras.getInt(android.content.ContentResolver.EXTRA_TOTAL_COUNT)
+            val totalSize = extras.getInt(ContentResolver.EXTRA_TOTAL_COUNT)
             mAdapter!!.setTotalSize(totalSize)
             val beforeCount = mAdapter!!.fetchedItemCount
             while (cursor.moveToNext()) {

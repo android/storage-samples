@@ -90,7 +90,7 @@ class ImageProvider : ContentProvider() {
 
     private fun constructExtras(queryArgs: Bundle, files: Array<File>): Bundle {
         val bundle = Bundle()
-        bundle.putInt(android.content.ContentResolver.EXTRA_TOTAL_COUNT, files.size)
+        bundle.putInt(ContentResolver.EXTRA_TOTAL_COUNT, files.size)
         var size = 0
         if (queryArgs.containsKey(ContentResolver.QUERY_ARG_OFFSET)) {
             size++
