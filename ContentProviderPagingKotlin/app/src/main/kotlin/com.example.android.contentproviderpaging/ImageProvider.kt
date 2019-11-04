@@ -79,7 +79,7 @@ class ImageProvider : ContentProvider() {
         }
 
         val maxIndex = Math.min(offset + limit, files.size)
-        for (i in offset..maxIndex - 1) {
+        for (i in offset until maxIndex) {
             includeFile(result, files[i])
         }
 
