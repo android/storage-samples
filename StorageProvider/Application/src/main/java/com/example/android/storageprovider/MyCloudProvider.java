@@ -193,9 +193,11 @@ public class MyCloudProvider extends DocumentsProvider {
         }
 
         // Add the most recent files to the cursor, not exceeding the max number of results.
-        for (int i = 0; i < Math.min(MAX_LAST_MODIFIED + 1, lastModifiedFiles.size()); i++) {
+        int includedCount = 0;
+        while (includedCount < MAX_LAST_MODIFIED + 1 && !lastModifiedFiles.isEmpty()) {
             final File file = lastModifiedFiles.remove();
             includeFile(result, null, file);
+            includedCount++;
         }
         return result;
     }
