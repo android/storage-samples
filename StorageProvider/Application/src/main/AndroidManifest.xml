@@ -17,28 +17,25 @@
 
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.example.android.storageprovider"
-          android:versionCode="1"
-          android:versionName="1.0">
-
-    <!-- Min/target SDK versions (<uses-sdk>) managed by build.gradle -->
-
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.android.storageprovider"
+    android:versionCode="1"
+    android:versionName="1.0">
 
     <application
         android:allowBackup="true"
-        android:label="@string/app_name"
         android:icon="@drawable/ic_launcher"
-        android:theme="@style/MyAppTheme">
+        android:label="@string/app_name"
+        android:theme="@style/MyAppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
 
         <activity
             android:name=".MainActivity"
-            android:uiOptions="splitActionBarWhenNarrow"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:uiOptions="splitActionBarWhenNarrow">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -55,11 +52,11 @@
         <provider
             android:name="com.example.android.storageprovider.MyCloudProvider"
             android:authorities="com.example.android.storageprovider.documents"
-            android:grantUriPermissions="true"
             android:exported="true"
+            android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS">
             <intent-filter>
-                <action android:name="android.content.action.DOCUMENTS_PROVIDER"/>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>
         </provider>
         <!--END_INCLUDE(provider_manifest)-->
