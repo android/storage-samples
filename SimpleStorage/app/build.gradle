@@ -20,13 +20,15 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'kotlin-kapt'
+
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
     defaultConfig {
-        applicationId "com.android.samples.doctorstorage"
-        minSdkVersion 19
-        targetSdkVersion 29
+        applicationId "com.android.samples.simplestorage"
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -37,15 +39,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    dataBinding {
+        enabled = true
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
+    implementation "androidx.appcompat:appcompat:${versions.appcompat}"
+    implementation "androidx.core:core-ktx:${versions.core_ktx}"
+    implementation "androidx.constraintlayout:constraintlayout:${versions.constraintlayout}"
+    implementation "com.google.android.material:material:${versions.material}"
+    testImplementation "junit:junit:${versions.junit}"
+    androidTestImplementation "androidx.test.ext:junit:${versions.android_junit}"
+    androidTestImplementation "androidx.test.espresso:espresso-core:${versions.expresso_core}"
 }

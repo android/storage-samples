@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,5 +15,7 @@
   -->
 
 <resources>
-    <string name="app_name">Doctor Storage</string>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
 </resources>

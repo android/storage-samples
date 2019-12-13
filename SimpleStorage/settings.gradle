@@ -15,4 +15,4 @@
  */
 
 include ':app'
-rootProject.name='Doctor Storage'
+rootProject.name='Simple Storage'

@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package com.android.samples.doctorstorage
+package com.android.samples.simplestorage
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.databinding.DataBindingUtil
+import com.android.samples.simplestorage.databinding.MainActivityBinding
 
 class MainActivity : AppCompatActivity() {
+    private val TAG = "MyActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        val binding: MainActivityBinding =
+            DataBindingUtil.setContentView(this, R.layout.main_activity)
     }
 }
