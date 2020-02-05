@@ -1,0 +1,34 @@
+<!--
+  ~ Copyright 2020 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string name="app_name">File Manager</string>
+    <string name="go_parent_label">"⬆️ Parent folder"</string>
+    <string name="folder_item">🗂 %1$s</string>
+    <string name="file_item">📄 %1$s</string>
+    <string name="permission_rationale_message">We need your permission to access your files\n and display them to you</string>
+    <string name="permission_request_label">Give permission</string>
+    <string name="legacy_external_storage_warning_message">You need to enable the <b>requestLegacyExternalStorage</b>\n flag in the AndroidManifest.xml file</string>
+    <string name="settings_title">File Manager settings</string>
+    <string name="file_manager_title">File Manager sample</string>
+    <string name="sdk_codename_info">SDK codename: %1$s</string>
+    <string name="sdk_version_info">SDK version: %1$s</string>
+    <string name="legacy_storage_info">Legacy External Storage: %1$s</string>
+    <string name="permission_used_info">Permission used: %1$s</string>
+    <string name="permission_granted_info">Permission granted: %1$s</string>
+    <string name="open_settings_button_label">Open settings</string>
+    <string name="request_permission_button_label">Request permission</string>
+</resources>
