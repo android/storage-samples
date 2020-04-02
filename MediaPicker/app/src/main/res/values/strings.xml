@@ -18,4 +18,7 @@
 
 <resources>
     <string name="app_name">MediaPicker</string>
+    <string name="pick_media_file_title">Pick a media file</string>
+    <string name="pick_media_file_description">Once you select a media type, we\'re sending a ACTION_GET_CONTENT intent</string>
+    <string name="pick_file_action_label">Pick a file</string>
 </resources>
