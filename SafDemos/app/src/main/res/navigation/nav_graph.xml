@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2020 The Android Open Source Project
   ~
@@ -14,16 +15,17 @@
   ~ limitations under the License.
   -->
 
-<resources>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph.xml"
+    app:startDestination="@id/mainFragment"
+    tools:ignore="UnusedNavigation">
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.android.samples.safdemos.MainFragment"
+        android:label="@string/app_name"
+        tools:layout="@layout/fragment_main" />
 
-        <item name="toolbarStyle">@style/Widget.MaterialComponents.Toolbar.PrimarySurface</item>
-    </style>
-
-</resources>
+</navigation>

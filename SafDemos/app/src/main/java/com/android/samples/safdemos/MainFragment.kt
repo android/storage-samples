@@ -16,17 +16,28 @@
 
 package com.android.samples.safdemos
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.android.samples.safdemos.databinding.ActivityMainBinding
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import com.android.samples.safdemos.databinding.FragmentMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainFragment : Fragment() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    private val viewModel by viewModels<MainViewModel>()
 
-        setSupportActionBar(binding.toolbar)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val binding = FragmentMainBinding.inflate(layoutInflater)
+        return binding.root
     }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+    }
+
 }
