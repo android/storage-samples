@@ -16,17 +16,8 @@
 
 package com.android.samples.safdemos
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import com.android.samples.safdemos.databinding.ActivityMainBinding
+import androidx.lifecycle.ViewModel
 
-class MainActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setSupportActionBar(binding.toolbar)
-    }
+class MainViewModel : ViewModel() {
+    // TODO: Implement the ViewModel
 }
