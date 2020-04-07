@@ -20,24 +20,39 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.android.samples.safdemos.databinding.FragmentMainBinding
 
 class MainFragment : Fragment() {
-
-    private val viewModel by viewModels<MainViewModel>()
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val binding = FragmentMainBinding.inflate(layoutInflater)
+
+        val demoItems = arrayOf(
+            // TODO: Add other SAF demos
+            Demo("Media picker", R.id.action_mainFragment_to_mediaPickerFragment)
+        )
+
+        activity?.let { activity ->
+            val adapter = ArrayAdapter(activity.baseContext, android.R.layout.simple_list_item_1, demoItems)
+            binding.demosList.adapter = adapter
+
+            binding.demosList.setOnItemClickListener { _, _, position, _ ->
+                adapter.getItem(position)?.let {
+                    findNavController().navigate(it.action)
+                }
+            }
+        }
+
         return binding.root
     }
+}
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-    }
-
+data class Demo(val label: String, @IdRes val action: Int) {
+    override fun toString(): String = label
 }

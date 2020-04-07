@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2020 The Android Open Source Project
   ~
@@ -14,10 +15,16 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <string name="app_name">SAF Demos</string>
-    <string name="media_picker_sample_name">Media Picker</string>
-    <string name="media_picker_title">Pick a media file</string>
-    <string name="media_picker_description">Once you select a media type, we\'re sending a ACTION_GET_CONTENT intent</string>
-    <string name="media_picker_file_action_label">Pick a file</string>
-</resources>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/imageType"
+        android:title="Image"/>
+
+    <item
+        android:id="@+id/videoType"
+        android:title="Video"/>
+
+    <item
+        android:id="@+id/audioType"
+        android:title="Audio"/>
+</menu>

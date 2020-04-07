@@ -24,6 +24,7 @@
         <item name="colorAccent">@color/colorAccent</item>
 
         <item name="toolbarStyle">@style/Widget.MaterialComponents.Toolbar.PrimarySurface</item>
+        <item name="popupMenuStyle">@style/Widget.MaterialComponents.PopupMenu</item>
     </style>
 
 </resources>

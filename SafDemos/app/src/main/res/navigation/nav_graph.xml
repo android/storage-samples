@@ -26,6 +26,15 @@
         android:id="@+id/mainFragment"
         android:name="com.android.samples.safdemos.MainFragment"
         android:label="@string/app_name"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_mediaPickerFragment"
+            app:destination="@id/mediaPickerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mediaPickerFragment"
+        android:name="com.android.samples.safdemos.mediapicker.MediaPickerFragment"
+        android:label="@string/media_picker_sample_name"
+        tools:layout="@layout/fragment_media_picker" />
 
 </navigation>
