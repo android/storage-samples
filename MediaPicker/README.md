@@ -1,1 +1,0 @@
-# MediaPicker sample
