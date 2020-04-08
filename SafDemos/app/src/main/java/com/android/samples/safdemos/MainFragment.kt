@@ -35,7 +35,7 @@ class MainFragment : Fragment() {
 
         val demoItems = arrayOf(
             // TODO: Add other SAF demos
-            Demo("Media picker", R.id.action_mainFragment_to_mediaPickerFragment)
+            Demo("Image picker", R.id.action_mainFragment_to_imagePickerFragment)
         )
 
         activity?.let { activity ->

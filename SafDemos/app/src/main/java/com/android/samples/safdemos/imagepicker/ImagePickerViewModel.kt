@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.samples.safdemos.mediapicker
+package com.android.samples.safdemos.imagepicker
 
 import androidx.lifecycle.ViewModel
 
-class MediaPickerViewModel : ViewModel() {
+class ImagePickerViewModel : ViewModel() {
     // TODO: Implement the ViewModel
 }

@@ -28,13 +28,13 @@
         android:label="@string/app_name"
         tools:layout="@layout/fragment_main" >
         <action
-            android:id="@+id/action_mainFragment_to_mediaPickerFragment"
-            app:destination="@id/mediaPickerFragment" />
+            android:id="@+id/action_mainFragment_to_imagePickerFragment"
+            app:destination="@id/imagePickerFragment" />
     </fragment>
     <fragment
-        android:id="@+id/mediaPickerFragment"
-        android:name="com.android.samples.safdemos.mediapicker.MediaPickerFragment"
-        android:label="@string/media_picker_sample_name"
-        tools:layout="@layout/fragment_media_picker" />
+        android:id="@+id/imagePickerFragment"
+        android:name="com.android.samples.safdemos.imagepicker.ImagePickerFragment"
+        android:label="@string/image_picker_sample_name"
+        tools:layout="@layout/fragment_image_picker" />
 
 </navigation>
