@@ -26,7 +26,7 @@ import java.util.*
 data class MediaStoreImage(
     val id: Long,
     val displayName: String,
-    val dateTaken: Date,
+    val dateAdded: Date,
     val contentUri: Uri
 ) {
     companion object {
