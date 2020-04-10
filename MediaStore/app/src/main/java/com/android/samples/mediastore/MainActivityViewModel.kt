@@ -39,6 +39,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.concurrent.TimeUnit
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
     private val _images = MutableLiveData<List<MediaStoreImage>>()
@@ -107,7 +108,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             val projection = arrayOf(
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_TAKEN
+                MediaStore.Images.Media.DATE_ADDED
             )
 
             /**
@@ -118,7 +119,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
              * Note that we've included a `?` in our selection. This stands in for a variable
              * which will be provided by the next variable.
              */
-            val selection = "${MediaStore.Images.Media.DATE_TAKEN} >= ?"
+            val selection = "${MediaStore.Images.Media.DATE_ADDED} >= ?"
 
             /**
              * The `selectionArgs` is a list of values that will be filled in for each `?`
@@ -133,7 +134,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
              * Sort order to use. This can also be null, which will use the default sort
              * order. For [MediaStore.Images], the default sort order is ascending by date taken.
              */
-            val sortOrder = "${MediaStore.Images.Media.DATE_TAKEN} DESC"
+            val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
 
             getApplication<Application>().contentResolver.query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -161,17 +162,20 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                  * to avoid having to look them up for each row.
                  */
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-                val dateTakenColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
+                val dateModifiedColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
                 val displayNameColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
 
+                Log.i(TAG, "Found ${cursor.count} images")
                 while (cursor.moveToNext()) {
 
                     // Here we'll use the column indexs that we found above.
                     val id = cursor.getLong(idColumn)
-                    val dateTaken = Date(cursor.getLong(dateTakenColumn))
+                    val dateModified =
+                        Date(TimeUnit.SECONDS.toMillis(cursor.getLong(dateModifiedColumn)))
                     val displayName = cursor.getString(displayNameColumn)
+
 
                     /**
                      * This is one of the trickiest parts:
@@ -190,11 +194,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                         id
                     )
 
-                    val image = MediaStoreImage(id, displayName, dateTaken, contentUri)
+                    val image = MediaStoreImage(id, displayName, dateModified, contentUri)
                     images += image
 
                     // For debugging, we'll output the image objects we create to logcat.
-                    Log.v(TAG, image.toString())
+                    Log.v(TAG, "Added image: $image")
                 }
             }
         }
@@ -251,7 +255,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     @SuppressLint("SimpleDateFormat")
     private fun dateToTimestamp(day: Int, month: Int, year: Int): Long =
         SimpleDateFormat("dd.MM.yyyy").let { formatter ->
-            formatter.parse("$day.$month.$year")?.time ?: 0
+            TimeUnit.MICROSECONDS.toSeconds(formatter.parse("$day.$month.$year")?.time ?: 0)
         }
 
     /**
