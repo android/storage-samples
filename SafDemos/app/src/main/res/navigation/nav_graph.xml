@@ -34,7 +34,7 @@
     <fragment
         android:id="@+id/imagePickerFragment"
         android:name="com.android.samples.safdemos.imagepicker.ImagePickerFragment"
-        android:label="@string/image_picker_sample_name"
+        android:label="@string/image_picker_demo_title"
         tools:layout="@layout/fragment_image_picker" />
 
 </navigation>
