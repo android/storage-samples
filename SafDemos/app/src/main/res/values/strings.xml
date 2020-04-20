@@ -17,6 +17,7 @@
 <resources>
     <string name="app_name">SAF Demos</string>
     <string name="image_picker_title">Select an image</string>
+    <string name="image_picker_action_description">Pick an image</string>
 
     <string name="image_picker_demo_title">Image Picker</string>
     <string name="image_picker_demo_text">
