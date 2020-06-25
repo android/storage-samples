@@ -125,13 +125,6 @@ class MainActivity : AppCompatActivity() {
              * to ensure this will succeed.
              */
             addCategory(Intent.CATEGORY_OPENABLE)
-
-            /**
-             * In this app we'll only display PDF documents, but if it were capable
-             * of editing a document, we may want to also request
-             * [Intent.FLAG_GRANT_WRITE_URI_PERMISSION].
-             */
-            flags = flags or Intent.FLAG_GRANT_READ_URI_PERMISSION
         }
         startActivityForResult(intent, OPEN_DOCUMENT_REQUEST_CODE)
     }
