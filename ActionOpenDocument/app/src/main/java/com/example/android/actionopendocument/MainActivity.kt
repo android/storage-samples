@@ -94,11 +94,16 @@ class MainActivity : AppCompatActivity() {
                  * [ContentResolver.takePersistableUriPermission] in order to persist the
                  * permission across restarts.
                  *
-                 * This may not be necessary for your app. If it is not requested, access
-                 * to the uri would persist until the device is restarted.
+                 * This may not be necessary for your app. If the permission is not
+                 * persisted, access to the uri is granted until the receiving Activity is
+                 * finished. You can extend the lifetime of the permission grant by passing
+                 * it along to another Android component. This is done by including the uri
+                 * in the data field or the ClipData object of the Intent used to launch that
+                 * component. Additionally, you need to add FLAG_GRANT_READ_URI_PERMISSION
+                 * and/or FLAG_GRANT_WRITE_URI_PERMISSION to the Intent.
                  *
-                 * This app requests it to demonstrate how, and to allow us to reopen the last
-                 * opened document when the app starts.
+                 * This app takes the persistable URI permission grant to demonstrate how, and
+                 * to allow us to reopen the last opened document when the app starts.
                  */
                 contentResolver.takePersistableUriPermission(
                     documentUri,
@@ -125,13 +130,6 @@ class MainActivity : AppCompatActivity() {
              * to ensure this will succeed.
              */
             addCategory(Intent.CATEGORY_OPENABLE)
-
-            /**
-             * In this app we'll only display PDF documents, but if it were capable
-             * of editing a document, we may want to also request
-             * [Intent.FLAG_GRANT_WRITE_URI_PERMISSION].
-             */
-            flags = flags or Intent.FLAG_GRANT_READ_URI_PERMISSION
         }
         startActivityForResult(intent, OPEN_DOCUMENT_REQUEST_CODE)
     }
