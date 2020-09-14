@@ -25,7 +25,8 @@ languages:    [Kotlin]
 solutions:    [Mobile]
 github:       android/storage
 level:        INTERMEDIATE
+icon:         screenshots/icon-web.png
 apiRefs:
     - android:android.content.ContentResolver
-    - android.provider.MediaStore
+    - android:android.provider.MediaStore
 license: apache2
