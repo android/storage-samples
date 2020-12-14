@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/mainFragment">
+
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.samples.storage.MainFragment"
+        android:label="Storage APIs"
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_mediaStoreFragment"
+            app:destination="@id/mediaStoreFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_safFragment"
+            app:destination="@id/safFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mediaStoreFragment"
+        android:name="com.samples.storage.mediastore.MediaStoreFragment"
+        android:label="MediaStore demo"
+        tools:layout="@layout/fragment_list" >
+        <action
+            android:id="@+id/action_mediaStoreFragment_to_addMediaFragment"
+            app:destination="@id/addMediaFragment" />
+        <action
+            android:id="@+id/action_mediaStoreFragment_to_editMediaFragment"
+            app:destination="@id/editMediaFragment" />
+        <action
+            android:id="@+id/action_mediaStoreFragment_to_deleteMediaFragment"
+            app:destination="@id/deleteMediaFragment" />
+        <action
+            android:id="@+id/action_mediaStoreFragment_to_addDocumentFragment"
+            app:destination="@id/addDocumentFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/safFragment"
+        android:name="com.samples.storage.saf.SafFragment"
+        android:label="Storage Access Framework demo" >
+        <action
+            android:id="@+id/action_safFragment_to_addTextFileFragment"
+            app:destination="@id/addTextFileFragment" />
+        <action
+            android:id="@+id/action_safFragment_to_editTextFileFragment"
+            app:destination="@id/editTextFileFragment" />
+        <action
+            android:id="@+id/action_safFragment_to_readPdfFileFragment"
+            app:destination="@id/readPdfFileFragment" />
+        <action
+            android:id="@+id/action_safFragment_to_getFolderChildrenFragment"
+            app:destination="@id/getFolderChildrenFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addTextFileFragment"
+        android:name="com.samples.storage.saf.AddTextFileFragment"
+        android:label="AddTextFileFragment" />
+    <fragment
+        android:id="@+id/editTextFileFragment"
+        android:name="com.samples.storage.saf.EditTextFileFragment"
+        android:label="EditTextFileFragment" />
+    <fragment
+        android:id="@+id/readPdfFileFragment"
+        android:name="com.samples.storage.saf.ReadPdfFileFragment"
+        android:label="ReadPdfFileFragment" />
+    <fragment
+        android:id="@+id/getFolderChildrenFragment"
+        android:name="com.samples.storage.saf.GetFolderChildrenFragment"
+        android:label="GetFolderChildrenFragment" />
+    <fragment
+        android:id="@+id/addMediaFragment"
+        android:name="com.samples.storage.mediastore.AddMediaFragment"
+        android:label="AddMediaFragment" />
+    <fragment
+        android:id="@+id/editMediaFragment"
+        android:name="com.samples.storage.mediastore.EditMediaFragment"
+        android:label="EditMediaFragment" />
+    <fragment
+        android:id="@+id/deleteMediaFragment"
+        android:name="com.samples.storage.mediastore.DeleteMediaFragment"
+        android:label="DeleteMediaFragment" />
+    <fragment
+        android:id="@+id/addDocumentFragment"
+        android:name="com.samples.storage.mediastore.AddDocumentFragment"
+        android:label="AddDocumentFragment" />
+</navigation>
