@@ -19,13 +19,13 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion "android-R"
+    compileSdkVersion 30
     buildToolsVersion "29.0.2"
 
     defaultConfig {
         applicationId "com.android.samples.filemanager"
         minSdkVersion 19
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
