@@ -22,13 +22,13 @@ import android.app.AppOpsManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.os.BuildCompat
 
 
 // AppOpsManager.OPSTR_MANAGE_EXTERNAL_STORAGE is a @SystemAPI at the moment
@@ -37,7 +37,7 @@ const val MANAGE_EXTERNAL_STORAGE_PERMISSION = "android:manage_external_storage"
 const val NOT_APPLICABLE = "N/A"
 
 fun getStoragePermissionName(): String {
-    return if (BuildCompat.isAtLeastR()) {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         MANAGE_EXTERNAL_STORAGE_PERMISSION
     } else {
         Manifest.permission.READ_EXTERNAL_STORAGE
@@ -45,7 +45,7 @@ fun getStoragePermissionName(): String {
 }
 
 fun openPermissionSettings(activity: AppCompatActivity) {
-    if (BuildCompat.isAtLeastR()) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         requestStoragePermissionApi30(activity)
     }
     else {
@@ -59,7 +59,7 @@ fun openPermissionSettings(activity: AppCompatActivity) {
 }
 
 fun getLegacyStorageStatus(): String {
-    return if (BuildCompat.isAtLeastQ()) {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         Environment.isExternalStorageLegacy().toString()
     } else {
         NOT_APPLICABLE
@@ -67,7 +67,7 @@ fun getLegacyStorageStatus(): String {
 }
 
 fun getPermissionStatus(activity: AppCompatActivity): String {
-    return if (BuildCompat.isAtLeastR()) {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         checkStoragePermissionApi30(activity).toString()
     } else {
         checkStoragePermissionApi19(activity).toString()
@@ -75,7 +75,7 @@ fun getPermissionStatus(activity: AppCompatActivity): String {
 }
 
 fun checkStoragePermission(activity: AppCompatActivity): Boolean {
-    return if (BuildCompat.isAtLeastR()) {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         checkStoragePermissionApi30(activity)
     } else {
         checkStoragePermissionApi19(activity)
@@ -83,7 +83,7 @@ fun checkStoragePermission(activity: AppCompatActivity): Boolean {
 }
 
 fun requestStoragePermission(activity: AppCompatActivity) {
-    if (BuildCompat.isAtLeastR()) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         requestStoragePermissionApi30(activity)
     }
     // If you want to see the default storage behavior on Android Q once the permission is granted
