@@ -24,7 +24,6 @@ import android.os.Environment.getExternalStorageDirectory
 import android.view.View
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.BuildCompat
 import com.android.samples.filemanager.databinding.ActivityFileExplorerBinding
 import java.io.File
 
@@ -53,7 +52,7 @@ class FileExplorerActivity : AppCompatActivity() {
 
         hasPermission = checkStoragePermission(this)
         if (hasPermission) {
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && !BuildCompat.isAtLeastR()) {
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
                 if (!Environment.isExternalStorageLegacy()) {
                     binding.rationaleView.visibility = View.GONE
                     binding.legacyStorageView.visibility = View.VISIBLE
