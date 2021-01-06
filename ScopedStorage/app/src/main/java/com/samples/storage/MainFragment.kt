@@ -25,8 +25,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.samples.storage.databinding.FragmentListBinding
 
 private val apiList = arrayOf(
-    Action("MediaStore", R.id.action_mainFragment_to_mediaStoreFragment),
-    Action("Storage Access Framework", R.id.action_mainFragment_to_safFragment)
+    Action(R.string.demo_mediastore, R.id.action_mainFragment_to_mediaStoreFragment),
+    Action(R.string.demo_saf, R.id.action_mainFragment_to_safFragment)
 )
 
 class MainFragment : Fragment() {

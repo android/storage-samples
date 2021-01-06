@@ -28,10 +28,10 @@ import com.samples.storage.R
 import com.samples.storage.databinding.FragmentListBinding
 
 private val demoList = arrayOf(
-    Action("Add Media File", R.id.action_mediaStoreFragment_to_addMediaFragment),
-    Action("Edit Media File", R.id.action_mediaStoreFragment_to_editMediaFragment),
-    Action("Delete Media File", R.id.action_mediaStoreFragment_to_deleteMediaFragment),
-    Action("Add Document to Downloads", R.id.action_mediaStoreFragment_to_addDocumentFragment),
+    Action(R.string.mediastore_add, R.id.action_mediaStoreFragment_to_addMediaFragment),
+    Action(R.string.mediastore_edit, R.id.action_mediaStoreFragment_to_editMediaFragment),
+    Action(R.string.mediastore_delete, R.id.action_mediaStoreFragment_to_deleteMediaFragment),
+    Action(R.string.mediastore_downloads, R.id.action_mediaStoreFragment_to_addDocumentFragment),
 )
 
 class MediaStoreFragment : Fragment() {
