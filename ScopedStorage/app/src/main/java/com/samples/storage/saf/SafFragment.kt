@@ -28,10 +28,10 @@ import com.samples.storage.R
 import com.samples.storage.databinding.FragmentListBinding
 
 private val demoList = arrayOf(
-    Action("Add Text File", R.id.action_safFragment_to_addTextFileFragment),
-    Action("Edit Text File", R.id.action_safFragment_to_editTextFileFragment),
-    Action("Read PDF File", R.id.action_safFragment_to_readPdfFileFragment),
-    Action("Get Folder Children", R.id.action_safFragment_to_getFolderChildrenFragment),
+    Action(R.string.saf_create, R.id.action_safFragment_to_addTextFileFragment),
+    Action(R.string.saf_edit, R.id.action_safFragment_to_editTextFileFragment),
+    Action(R.string.saf_read, R.id.action_safFragment_to_readPdfFileFragment),
+    Action(R.string.saf_folders, R.id.action_safFragment_to_getFolderChildrenFragment),
 )
 
 class SafFragment : Fragment() {

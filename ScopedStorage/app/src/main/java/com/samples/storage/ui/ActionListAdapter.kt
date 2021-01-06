@@ -21,10 +21,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.IdRes
+import androidx.annotation.StringRes
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 
-data class Action(val name: String, @IdRes val id: Int)
+data class Action(@StringRes val nameRes: Int, @IdRes val actionRes: Int)
 
 class ActionListAdapter(private val dataSet: Array<Action>) :
     RecyclerView.Adapter<ActionListAdapter.ViewHolder>() {
@@ -34,11 +35,10 @@ class ActionListAdapter(private val dataSet: Array<Action>) :
      * (custom ViewHolder).
      */
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView
+        val textView: TextView = view.findViewById(R.id.textView)
 
         init {
             // Define click listener for the ViewHolder's View.
-            textView = view.findViewById(R.id.textView)
         }
     }
 
@@ -53,12 +53,13 @@ class ActionListAdapter(private val dataSet: Array<Action>) :
 
     // Replace the contents of a view (invoked by the layout manager)
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+        val context = viewHolder.textView.context
 
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
-        viewHolder.textView.text = dataSet[position].name
+        viewHolder.textView.text = context.getString(dataSet[position].nameRes)
         viewHolder.textView.setOnClickListener {
-            it.findNavController().navigate(dataSet[position].id)
+            it.findNavController().navigate(dataSet[position].actionRes)
         }
     }
 

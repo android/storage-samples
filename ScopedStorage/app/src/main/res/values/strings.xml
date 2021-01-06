@@ -16,4 +16,21 @@
 
 <resources>
     <string name="app_name">Storage APIs</string>
+
+    <!-- Demo types -->
+    <string name="demo_mediastore">Media Store</string>
+    <string name="demo_saf">Storage Access Framework</string>
+
+    <!-- Media Store Demos -->
+    <string name="mediastore_add">Add Media File</string>
+    <string name="mediastore_edit">Edit Media File</string>
+    <string name="mediastore_delete">Delete Media File</string>
+    <string name="mediastore_downloads">Add Document to Downloads</string>
+
+    <!-- SAF Demos -->
+    <string name="saf_create">Add Text File</string>
+    <string name="saf_read">Read PDF File</string>
+    <string name="saf_edit">Edit Text File</string>
+    <string name="saf_folders">Get Folder Children</string>
+
 </resources>
