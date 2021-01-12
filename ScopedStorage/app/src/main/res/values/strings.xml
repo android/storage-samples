@@ -33,4 +33,11 @@
     <string name="saf_edit">Edit Text File</string>
     <string name="saf_folders">Get Folder Children</string>
 
+    <string name="saf_action_create_label">Create Document</string>
+    <string name="saf_action_open_label">Open Document</string>
+    <string name="saf_action_open_folder_label">Open Folder</string>
+
+    <string name="saf_open_file_output">File %1$s\nContents hash: %2$s</string>
+    <string name="saf_folder_output">Folder contents: %1$s</string>
+
 </resources>
