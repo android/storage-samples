@@ -21,14 +21,18 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts.*
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.samples.storage.R
 import com.samples.storage.databinding.FragmentSafBinding
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val DEFAULT_FILE_NAME = "SAF Demo File.txt"
 
@@ -49,9 +53,12 @@ class SafFragment : Fragment() {
         val documentUri = uri ?: return@registerForActivityResult
         val documentFile = DocumentFile.fromSingleUri(requireContext(), documentUri)
             ?: return@registerForActivityResult
-        val documentStream = requireContext().contentResolver.openInputStream(documentUri)
-            ?: return@registerForActivityResult
         viewLifecycleOwner.lifecycleScope.launch {
+            @Suppress("BlockingMethodInNonBlockingContext")
+            val documentStream = withContext(Dispatchers.IO) {
+                requireContext().contentResolver.openInputStream(documentUri)
+            } ?: return@launch
+
             val text = viewModel.openDocumentExample(documentStream)
             binding.output.text = getString(R.string.saf_open_file_output, documentFile.name, text)
         }

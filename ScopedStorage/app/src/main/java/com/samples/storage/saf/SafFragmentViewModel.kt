@@ -13,6 +13,9 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.security.MessageDigest
 
+/** Number of bytes to read at a time from an open stream */
+private const val FILE_BUFFER_SIZE_BYTES = 1024
+
 /**
  * ViewModel contains various examples for how to work with the contents of documents
  * opened with the Storage Access Framework.
@@ -34,14 +37,14 @@ class SafFragmentViewModel : ViewModel() {
      * [DocumentFile] to file name and [Uri] in a coroutine.
      */
     suspend fun listFiles(folder: DocumentFile): List<Pair<String, Uri>> {
-        return if (folder.isDirectory) {
-            withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.IO) {
+            if (folder.isDirectory) {
                 folder.listFiles().mapNotNull { file ->
                     if (file.name != null) Pair(file.name!!, file.uri) else null
                 }
+            } else {
+                emptyList()
             }
-        } else {
-            emptyList()
         }
     }
 
@@ -55,10 +58,16 @@ class SafFragmentViewModel : ViewModel() {
      * suspend function with the [Dispatchers.IO] coroutine context.
      */
     suspend fun openDocumentExample(inputStream: InputStream): String {
+        @Suppress("BlockingMethodInNonBlockingContext")
         return withContext(Dispatchers.IO) {
             inputStream.use { stream ->
                 val messageDigest = MessageDigest.getInstance("SHA-256")
-                val hashResult = messageDigest.digest(stream.readBytes())
+
+                val buffer = ByteArray(FILE_BUFFER_SIZE_BYTES)
+                while (stream.read(buffer) > 0) {
+                    messageDigest.update(buffer)
+                }
+                val hashResult = messageDigest.digest()
                 hashResult.joinToString(separator = ":") { "%02x".format(it) }
             }
         }
