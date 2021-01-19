@@ -36,6 +36,10 @@ import kotlinx.coroutines.withContext
 
 private const val DEFAULT_FILE_NAME = "SAF Demo File.txt"
 
+/**
+ * Fragment that demonstrates the most common ways to work with documents via the
+ * Storage Access Framework (SAF).
+ */
 class SafFragment : Fragment() {
     private var _binding: FragmentSafBinding? = null
     private val binding get() = _binding!!
@@ -46,6 +50,15 @@ class SafFragment : Fragment() {
         val documentUri = uri ?: return@registerForActivityResult
         val documentFile = DocumentFile.fromSingleUri(requireContext(), documentUri)
             ?: return@registerForActivityResult
+        viewLifecycleOwner.lifecycleScope.launch {
+            @Suppress("BlockingMethodInNonBlockingContext")
+            val documentStream = withContext(Dispatchers.IO) {
+                requireContext().contentResolver.openOutputStream(documentUri)
+            } ?: return@launch
+            val text = viewModel.createDocumentExample(documentStream)
+            binding.output.text =
+                getString(R.string.saf_create_file_output, documentFile.name, text)
+        }
         Log.d("SafFragment", "Created: ${documentFile.name}, type ${documentFile.type}")
     }
 
