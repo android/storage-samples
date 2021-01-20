@@ -52,6 +52,7 @@ fun renderItem(activity: AppCompatActivity, file: File): String {
     }
 }
 
+
 fun openFile(activity: AppCompatActivity, selectedItem: File) {
     // Get URI and MIME type of file
     val uri = FileProvider.getUriForFile(activity.applicationContext, AUTHORITY, selectedItem)
