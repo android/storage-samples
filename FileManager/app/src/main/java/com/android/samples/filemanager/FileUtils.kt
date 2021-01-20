@@ -17,12 +17,11 @@
 package com.android.samples.filemanager
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Environment
-import java.io.File
 import android.webkit.MimeTypeMap
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import java.io.File
 
 private const val AUTHORITY = "${BuildConfig.APPLICATION_ID}.provider"
 
@@ -52,7 +51,6 @@ fun renderItem(activity: AppCompatActivity, file: File): String {
         activity.getString(R.string.file_item, file.name)
     }
 }
-
 
 fun openFile(activity: AppCompatActivity, selectedItem: File) {
     // Get URI and MIME type of file
