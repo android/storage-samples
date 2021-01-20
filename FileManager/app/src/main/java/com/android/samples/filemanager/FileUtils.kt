@@ -17,12 +17,11 @@
 package com.android.samples.filemanager
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Environment
-import java.io.File
 import android.webkit.MimeTypeMap
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import java.io.File
 
 private const val AUTHORITY = "${BuildConfig.APPLICATION_ID}.provider"
 

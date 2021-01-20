@@ -17,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApp">
-        <activity android:name="com.android.samples.filemanager.SettingsActivity"></activity>
+        <activity android:name="com.android.samples.filemanager.SettingsActivity"/>
         <activity android:name="com.android.samples.filemanager.FileExplorerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
