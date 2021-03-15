@@ -19,21 +19,6 @@ import kotlin.random.Random
 /** Number of bytes to read at a time from an open stream */
 private const val FILE_BUFFER_SIZE_BYTES = 1024
 
-private const val LIST_OF_WORDS = "a,ac,accumsan,adipiscing,aenean,aliqua,aliquam,aliquet,amet," +
-        "ante,arcu,at,auctor,bibendum,commodo,condimentum,congue,consectetur,consequat,cras,cum," +
-        "curabitur,cursus,diam,dictum,dignissim,do,dolor,dolore,donec,dui,duis,egestas,eget," +
-        "eiusmod,eleifend,elementum,elit,enim,erat,eros,est,et,etiam,eu,euismod,facilisi," +
-        "facilisis,fames,faucibus,felis,fermentum,feugiat,fringilla,fusce,gravida,habitant," +
-        "hendrerit,iaculis,id,imperdiet,in,incididunt,integer,interdum,ipsum,justo,labore," +
-        "lacinia,lacus,laoreet,lectus,leo,libero,lorem,luctus,maecenas,magna,malesuada,massa," +
-        "mattis,mauris,metus,mi,molestie,mollis,morbi,nec,neque,netus,nibh,nisi,nisl,non," +
-        "nulla,nunc,odio,orci,ornare,pellentesque,pharetra,phasellus,placerat,porttitor," +
-        "posuere,praesent,pretium,proin,pulvinar,purus,quam,quis,quisque,rhoncus,risus," +
-        "rutrum,sagittis,sapien,scelerisque,sed,sem,semper,senectus,sit,sociis,sodales," +
-        "sollicitudin,suscipit,suspendisse,tellus,tempor,tincidunt,tortor,tristique," +
-        "turpis,ullamcorper,ultrices,ultricies,urna,ut,varius,vehicula,vel,velit,venenatis," +
-        "vestibulum,vitae,vivamus,viverra,volutpat,vulputate"
-
 /**
  * ViewModel contains various examples for how to work with the contents of documents
  * opened with the Storage Access Framework.
@@ -46,19 +31,17 @@ class SafFragmentViewModel : ViewModel() {
      * based on the words found in "Lorem Ipsum".
      */
     suspend fun createDocumentExample(outputStream: OutputStream): String {
-        val words = LIST_OF_WORDS.split(',')
+
         @Suppress("BlockingMethodInNonBlockingContext")
         return withContext(Dispatchers.IO) {
             val lines = mutableListOf<String>()
-            for (lineNumber in 1..Random.Default.nextInt(3, 7)) {
-                val line = mutableListOf<String>()
-                for (wordNumber in 1..Random.Default.nextInt(3, 7)) {
-                    line.add(words.random())
-                }
-                line[0] = line[0].capitalize(Locale.US)
-                lines += "${line.joinToString(separator = " ")}."
+
+            for (lineNumber in 1..Random.nextInt(1, 5)) {
+                val line = "hello world ".repeat(Random.nextInt(1, 5))
+                lines += line.capitalize(Locale.US)
             }
-            val contents = lines.joinToString(separator = " ")
+
+            val contents = lines.joinToString(separator = System.lineSeparator())
 
             outputStream.bufferedWriter(StandardCharsets.UTF_8).use { writer ->
                 writer.write(contents)
