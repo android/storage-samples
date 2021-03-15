@@ -55,35 +55,7 @@
         android:id="@+id/safFragment"
         android:name="com.samples.storage.saf.SafFragment"
         android:label="Storage Access Framework demo" >
-        <action
-            android:id="@+id/action_safFragment_to_addTextFileFragment"
-            app:destination="@id/addTextFileFragment" />
-        <action
-            android:id="@+id/action_safFragment_to_editTextFileFragment"
-            app:destination="@id/editTextFileFragment" />
-        <action
-            android:id="@+id/action_safFragment_to_readPdfFileFragment"
-            app:destination="@id/readPdfFileFragment" />
-        <action
-            android:id="@+id/action_safFragment_to_getFolderChildrenFragment"
-            app:destination="@id/getFolderChildrenFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/addTextFileFragment"
-        android:name="com.samples.storage.saf.AddTextFileFragment"
-        android:label="AddTextFileFragment" />
-    <fragment
-        android:id="@+id/editTextFileFragment"
-        android:name="com.samples.storage.saf.EditTextFileFragment"
-        android:label="EditTextFileFragment" />
-    <fragment
-        android:id="@+id/readPdfFileFragment"
-        android:name="com.samples.storage.saf.ReadPdfFileFragment"
-        android:label="ReadPdfFileFragment" />
-    <fragment
-        android:id="@+id/getFolderChildrenFragment"
-        android:name="com.samples.storage.saf.GetFolderChildrenFragment"
-        android:label="GetFolderChildrenFragment" />
     <fragment
         android:id="@+id/addMediaFragment"
         android:name="com.samples.storage.mediastore.AddMediaFragment"

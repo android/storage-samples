@@ -17,37 +17,95 @@
 package com.samples.storage.saf
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.samples.storage.Action
-import com.samples.storage.ActionListAdapter
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.samples.storage.R
-import com.samples.storage.databinding.FragmentListBinding
+import com.samples.storage.databinding.FragmentSafBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-private val demoList = arrayOf(
-    Action(R.string.saf_create, R.id.action_safFragment_to_addTextFileFragment),
-    Action(R.string.saf_edit, R.id.action_safFragment_to_editTextFileFragment),
-    Action(R.string.saf_read, R.id.action_safFragment_to_readPdfFileFragment),
-    Action(R.string.saf_folders, R.id.action_safFragment_to_getFolderChildrenFragment),
-)
+private const val DEFAULT_FILE_NAME = "SAF Demo File.txt"
 
+/**
+ * Fragment that demonstrates the most common ways to work with documents via the
+ * Storage Access Framework (SAF).
+ */
 class SafFragment : Fragment() {
-    private var _binding: FragmentListBinding? = null
+    private var _binding: FragmentSafBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: SafFragmentViewModel by viewModels()
+
+    private val actionCreateDocument = registerForActivityResult(CreateDocument()) { uri ->
+        val documentUri = uri ?: return@registerForActivityResult
+        val documentFile = DocumentFile.fromSingleUri(requireContext(), documentUri)
+            ?: return@registerForActivityResult
+        viewLifecycleOwner.lifecycleScope.launch {
+            @Suppress("BlockingMethodInNonBlockingContext")
+            val documentStream = withContext(Dispatchers.IO) {
+                requireContext().contentResolver.openOutputStream(documentUri)
+            } ?: return@launch
+            val text = viewModel.createDocumentExample(documentStream)
+            binding.output.text =
+                getString(R.string.saf_create_file_output, documentFile.name, text)
+        }
+        Log.d("SafFragment", "Created: ${documentFile.name}, type ${documentFile.type}")
+    }
+
+    private val actionOpenDocument = registerForActivityResult(OpenDocument()) { uri ->
+        val documentUri = uri ?: return@registerForActivityResult
+        val documentFile = DocumentFile.fromSingleUri(requireContext(), documentUri)
+            ?: return@registerForActivityResult
+        viewLifecycleOwner.lifecycleScope.launch {
+            @Suppress("BlockingMethodInNonBlockingContext")
+            val documentStream = withContext(Dispatchers.IO) {
+                requireContext().contentResolver.openInputStream(documentUri)
+            } ?: return@launch
+
+            val text = viewModel.openDocumentExample(documentStream)
+            binding.output.text = getString(R.string.saf_open_file_output, documentFile.name, text)
+        }
+    }
+
+    private val actionOpenDocumentTree = registerForActivityResult(OpenDocumentTree()) { uri ->
+        val documentUri = uri ?: return@registerForActivityResult
+        val context = requireContext().applicationContext
+
+        val parentFolder = DocumentFile.fromTreeUri(context, documentUri)
+            ?: return@registerForActivityResult
+        viewLifecycleOwner.lifecycleScope.launch {
+            val text = viewModel.listFiles(parentFolder)
+                .sortedBy { it.first }
+                .joinToString { it.first }
+            binding.output.text = getString(R.string.saf_folder_output, text)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentListBinding.inflate(inflater, container, false)
+        _binding = FragmentSafBinding.inflate(inflater, container, false)
 
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.adapter = ActionListAdapter(demoList)
-
-        binding.recyclerView
+        binding.createFile.setOnClickListener {
+            actionCreateDocument.launch(DEFAULT_FILE_NAME)
+        }
+        binding.openFile.setOnClickListener {
+            actionOpenDocument.launch(arrayOf("*/*"))
+        }
+        binding.openFolder.setOnClickListener {
+            actionOpenDocumentTree.launch(null)
+        }
 
         return binding.root
     }
