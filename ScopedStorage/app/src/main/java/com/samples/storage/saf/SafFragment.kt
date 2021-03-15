@@ -47,25 +47,43 @@ class SafFragment : Fragment() {
     private val viewModel: SafFragmentViewModel by viewModels()
 
     private val actionCreateDocument = registerForActivityResult(CreateDocument()) { uri ->
+        // If the user returns to this fragment without creating a file, uri will be null
+        // In this case, we return void
         val documentUri = uri ?: return@registerForActivityResult
+
+        // If we can't instantiate a `DocumentFile`, it probably means the file has been removed
+        // or became unavailable (if the SD card has been removed).
+        // In this case, we return void
         val documentFile = DocumentFile.fromSingleUri(requireContext(), documentUri)
             ?: return@registerForActivityResult
+
+        // We launch a coroutine within the lifecycle of the viewmodel. The coroutine will be
+        // automatically cancelled if the viewmodel is cleared
         viewLifecycleOwner.lifecycleScope.launch {
             @Suppress("BlockingMethodInNonBlockingContext")
             val documentStream = withContext(Dispatchers.IO) {
                 requireContext().contentResolver.openOutputStream(documentUri)
             } ?: return@launch
+
             val text = viewModel.createDocumentExample(documentStream)
             binding.output.text =
                 getString(R.string.saf_create_file_output, documentFile.name, text)
         }
+
         Log.d("SafFragment", "Created: ${documentFile.name}, type ${documentFile.type}")
     }
 
     private val actionOpenDocument = registerForActivityResult(OpenDocument()) { uri ->
+        // If the user returns to this fragment without selecting a file, uri will be null
+        // In this case, we return void
         val documentUri = uri ?: return@registerForActivityResult
+
+        // If we can't instantiate a `DocumentFile`, it probably means the file has been removed
+        // or became unavailable (if the SD card has been removed).
+        // In this case, we return void
         val documentFile = DocumentFile.fromSingleUri(requireContext(), documentUri)
             ?: return@registerForActivityResult
+
         viewLifecycleOwner.lifecycleScope.launch {
             @Suppress("BlockingMethodInNonBlockingContext")
             val documentStream = withContext(Dispatchers.IO) {
@@ -80,9 +98,9 @@ class SafFragment : Fragment() {
     private val actionOpenDocumentTree = registerForActivityResult(OpenDocumentTree()) { uri ->
         val documentUri = uri ?: return@registerForActivityResult
         val context = requireContext().applicationContext
-
         val parentFolder = DocumentFile.fromTreeUri(context, documentUri)
             ?: return@registerForActivityResult
+
         viewLifecycleOwner.lifecycleScope.launch {
             val text = viewModel.listFiles(parentFolder)
                 .sortedBy { it.first }
@@ -98,12 +116,20 @@ class SafFragment : Fragment() {
         _binding = FragmentSafBinding.inflate(inflater, container, false)
 
         binding.createFile.setOnClickListener {
+            // We ask the user to create a file with a preferred default filename, which can be
+            // overwritten by the user
             actionCreateDocument.launch(DEFAULT_FILE_NAME)
         }
+
         binding.openFile.setOnClickListener {
+            // We ask the user to select any file. If we want to select a specific one, we would do
+            // this: `actionOpenDocument.launch(arrayOf("image/png", "image/gif"))`
             actionOpenDocument.launch(arrayOf("*/*"))
         }
+
         binding.openFolder.setOnClickListener {
+            // We ask the user to select a folder. We can specify a preferred folder to be opened
+            // if we have its URI and the device is running on API 26+
             actionOpenDocumentTree.launch(null)
         }
 
