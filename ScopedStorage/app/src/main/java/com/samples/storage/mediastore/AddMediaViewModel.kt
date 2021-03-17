@@ -40,7 +40,7 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
     val temporaryMediaUri: StateFlow<Uri?> = _temporaryMediaUri
 
     // We create a URI where the camera will store the image
-    fun createPhotoUri(filename: String): Uri? {
+    fun createPhotoUri(source: Source): Uri? {
         val imageCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         } else {
@@ -48,13 +48,7 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
         }
 
         val newImage = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, filename)
-
-            // On Android 10 (API 29), we can add an entry to MediaStore without making it visible
-            // to other apps until we complete writing its content by using the IS_PENDING flag
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                put(MediaStore.Images.Media.IS_PENDING, 1)
-            }
+            put(MediaStore.Images.Media.DISPLAY_NAME, generateFilename(source, "jpg"))
         }
 
         val uri = context.contentResolver.insert(imageCollection, newImage)
@@ -64,7 +58,7 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
     }
 
     // We create a URI where the camera will store the video
-    fun createVideoUri(filename: String): Uri? {
+    fun createVideoUri(): Uri? {
         val videoCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         } else {
@@ -72,13 +66,7 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
         }
 
         val newVideo = ContentValues().apply {
-            put(MediaStore.Video.Media.DISPLAY_NAME, filename)
-
-            // On Android 10 (API 29), we can add an entry to MediaStore without making it visible
-            // to other apps until we complete writing its content by using the IS_PENDING flag
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                put(MediaStore.Video.Media.IS_PENDING, 1)
-            }
+            put(MediaStore.Video.Media.DISPLAY_NAME, generateFilename(Source.CAMERA, "mp4"))
         }
 
         val uri = context.contentResolver.insert(videoCollection, newVideo)
@@ -95,6 +83,24 @@ private fun canWriteInMediaStore(context: Context): Boolean {
         true
     } else {
         checkSelfPermission(context, WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+    }
+}
+
+enum class Source {
+    CAMERA, INTERNET, GENERATED
+}
+
+private fun generateFilename(source: Source, extension: String): String {
+    return when (source) {
+        Source.CAMERA -> {
+            "camera-${System.currentTimeMillis()}.$extension"
+        }
+        Source.INTERNET -> {
+            "internet-${System.currentTimeMillis()}.$extension"
+        }
+        Source.GENERATED -> {
+            "generated-${System.currentTimeMillis()}.$extension"
+        }
     }
 }
 

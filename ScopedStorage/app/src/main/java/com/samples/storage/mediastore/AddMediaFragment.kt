@@ -16,7 +16,13 @@
 
 package com.samples.storage.mediastore
 
+import android.app.Activity
+import android.content.ContentValues
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -32,7 +38,8 @@ class AddMediaFragment : Fragment() {
     private val viewModel: AddMediaViewModel by viewModels()
 
     private val actionTakePicture = registerForActivityResult(TakePicture()) { success ->
-        if(!success) {
+        if (!success) {
+            Log.d(tag, "Image taken FAIL: ${viewModel.temporaryMediaUri.value}")
             return@registerForActivityResult
         }
 
@@ -42,14 +49,13 @@ class AddMediaFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAddMediaBinding.inflate(inflater, container, false)
 
         binding.takePictureButton.setOnClickListener {
-            // "${System.currentTimeMillis()}.jpg"
-            viewModel.createPhotoUri("randomtest.jpg")?.let { uri ->
+            viewModel.createPhotoUri(Source.CAMERA)?.let { uri ->
                 actionTakePicture.launch(uri)
             }
         }
