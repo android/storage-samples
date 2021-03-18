@@ -10,8 +10,6 @@ import android.os.Build
 import android.provider.MediaStore
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -52,7 +50,7 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
         }
 
         val uri = context.contentResolver.insert(imageCollection, newImage)
-        _temporaryMediaUri.value =uri
+        _temporaryMediaUri.value = uri
 
         return uri
     }

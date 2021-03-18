@@ -16,13 +16,7 @@
 
 package com.samples.storage.mediastore
 
-import android.app.Activity
-import android.content.ContentValues
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -43,7 +37,7 @@ class AddMediaFragment : Fragment() {
             return@registerForActivityResult
         }
 
-        Log.d(tag, "Image taken: ${viewModel.temporaryMediaUri}")
+        Log.d(tag, "Image taken SUCCESS: ${viewModel.temporaryMediaUri.value}")
 
         viewModel.loadMedia()
     }
