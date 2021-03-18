@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import coil.load
 import com.samples.storage.databinding.FragmentAddMediaBinding
 
 class AddMediaFragment : Fragment() {
@@ -32,17 +33,24 @@ class AddMediaFragment : Fragment() {
 
     private val actionTakePicture = registerForActivityResult(TakePicture()) { success ->
         if (!success) {
-            Log.d(tag, "Image taken FAIL: ${viewModel.temporaryMediaUri.value}")
+            Log.d(tag, "Image taken FAIL: ${viewModel.temporaryMediaUri}")
             return@registerForActivityResult
         }
 
-        Log.d(tag, "Image taken SUCCESS: ${viewModel.temporaryMediaUri.value}")
-
+        Log.d(tag, "Image taken SUCCESS: ${viewModel.temporaryMediaUri}")
         viewModel.loadMedia()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentAddMediaBinding.inflate(inflater, container, false)
+
+        // Once we've added a media, we set its URI to the currentMediaUri property.
+        // Every time
+        viewModel.currentMediaUri.observe(viewLifecycleOwner) { uri ->
+            binding.mediaThumbnail.load(uri) {
+                crossfade(true)
+            }
+        }
 
         binding.takePictureButton.setOnClickListener {
             viewModel.createPhotoUri(Source.CAMERA)?.let { uri ->

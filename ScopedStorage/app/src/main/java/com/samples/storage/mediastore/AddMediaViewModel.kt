@@ -25,8 +25,8 @@ import android.os.Build
 import android.provider.MediaStore
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.AndroidViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 
 class AddMediaViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -37,13 +37,16 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
         get() = canWriteInMediaStore(context)
 
     // We keep the current Media in the viewmodel to re-render it if there is a configuration change
-    private val _currentMedia: MutableStateFlow<Media?> = MutableStateFlow(null)
-    val currentMedia: StateFlow<Media?> = _currentMedia
+    private val _currentMediaUri: MutableLiveData<Uri?> = MutableLiveData()
+    val currentMediaUri: LiveData<Uri?> = _currentMediaUri
 
     fun loadMedia() {
-        // Once we get a result from [TakePicture] and [TakeVideo], we clear the value of the
-        // temporaryMediaUri property
-        _temporaryMediaUri.value = null
+        // Once we get a result from [TakePicture] and [TakeVideo], we set the _currentMediaUri
+        // property, which will trigger a rerender of the ImageView in the layout
+        _currentMediaUri.value = temporaryMediaUri
+
+        // Finally we clear the value of the temporaryMediaUri property
+        temporaryMediaUri = null
     }
 
     /**
@@ -51,8 +54,7 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
      * returning the result, so we need to keep the temporarily created URI until the action is
      * finished
      */
-    private val _temporaryMediaUri: MutableStateFlow<Uri?> = MutableStateFlow(null)
-    val temporaryMediaUri: StateFlow<Uri?> = _temporaryMediaUri
+    var temporaryMediaUri: Uri? = null
 
     // We create a URI where the camera will store the image
     fun createPhotoUri(source: Source): Uri? {
@@ -67,7 +69,7 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
         }
 
         val uri = context.contentResolver.insert(imageCollection, newImage)
-        _temporaryMediaUri.value = uri
+        temporaryMediaUri = uri
 
         return uri
     }
@@ -85,7 +87,7 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
         }
 
         val uri = context.contentResolver.insert(videoCollection, newVideo)
-        _temporaryMediaUri.value = uri
+        temporaryMediaUri = uri
 
         return uri
     }
@@ -118,5 +120,3 @@ private fun generateFilename(source: Source, extension: String): String {
         }
     }
 }
-
-data class Media(val filename: String, val size: Long, val uri: Uri)

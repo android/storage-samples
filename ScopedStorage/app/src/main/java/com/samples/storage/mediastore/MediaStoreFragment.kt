@@ -21,10 +21,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.samples.storage.ui.Action
-import com.samples.storage.ui.ActionListAdapter
 import com.samples.storage.R
 import com.samples.storage.databinding.FragmentListBinding
+import com.samples.storage.ui.Action
+import com.samples.storage.ui.ActionListAdapter
 
 private val demoList = arrayOf(
     Action(R.string.mediastore_add, R.id.action_mediaStoreFragment_to_addMediaFragment),
