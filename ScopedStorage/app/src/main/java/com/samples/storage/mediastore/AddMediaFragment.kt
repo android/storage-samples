@@ -42,10 +42,7 @@ class AddMediaFragment : Fragment() {
         viewModel.loadMedia()
     }
 
-    override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentAddMediaBinding.inflate(inflater, container, false)
 
         binding.takePictureButton.setOnClickListener {
