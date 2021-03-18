@@ -17,23 +17,41 @@
 package com.samples.storage.mediastore
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.fragment.app.Fragment
-import com.samples.storage.databinding.FragmentDemoBinding
+import androidx.fragment.app.viewModels
+import com.samples.storage.databinding.FragmentAddMediaBinding
 
 class AddMediaFragment : Fragment() {
-    private var _binding: FragmentDemoBinding? = null
+    private var _binding: FragmentAddMediaBinding? = null
     private val binding get() = _binding!!
+    private val viewModel: AddMediaViewModel by viewModels()
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentDemoBinding.inflate(inflater, container, false)
-        val view = binding.root
-        return view
+    private val actionTakePicture = registerForActivityResult(TakePicture()) { success ->
+        if (!success) {
+            Log.d(tag, "Image taken FAIL: ${viewModel.temporaryMediaUri.value}")
+            return@registerForActivityResult
+        }
+
+        Log.d(tag, "Image taken SUCCESS: ${viewModel.temporaryMediaUri.value}")
+
+        viewModel.loadMedia()
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentAddMediaBinding.inflate(inflater, container, false)
+
+        binding.takePictureButton.setOnClickListener {
+            viewModel.createPhotoUri(Source.CAMERA)?.let { uri ->
+                actionTakePicture.launch(uri)
+            }
+        }
+
+        return binding.root
     }
 
     override fun onDestroyView() {
