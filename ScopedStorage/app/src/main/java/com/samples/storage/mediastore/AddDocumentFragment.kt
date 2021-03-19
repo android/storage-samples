@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.samples.storage.databinding.FragmentDemoBinding
 
+// TODO(yrezgui): Finish this demo
 class AddDocumentFragment : Fragment() {
     private var _binding: FragmentDemoBinding? = null
     private val binding get() = _binding!!

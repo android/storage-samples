@@ -26,6 +26,7 @@ import androidx.fragment.app.viewModels
 import coil.load
 import com.samples.storage.databinding.FragmentAddMediaBinding
 
+// TODO(yrezgui): Add media from camera (video), from internet and generated one
 class AddMediaFragment : Fragment() {
     private var _binding: FragmentAddMediaBinding? = null
     private val binding get() = _binding!!
