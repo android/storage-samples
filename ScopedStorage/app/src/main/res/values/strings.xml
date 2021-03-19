@@ -1,0 +1,45 @@
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string name="app_name">Storage APIs</string>
+
+    <!-- Demo types -->
+    <string name="demo_mediastore">Media Store</string>
+    <string name="demo_saf">Storage Access Framework</string>
+
+    <!-- Media Store Demos -->
+    <string name="mediastore_add">Add Media File</string>
+    <string name="mediastore_take_picture_camera">Take Picture</string>
+    <string name="mediastore_take_video_camera">Take Video</string>
+    <string name="mediastore_download_image_internet">Download Picture</string>
+    <string name="mediastore_generate_simple_image">Generate Unicolor Picture</string>
+    <string name="mediastore_added_media_contentdescription">Newly added media</string>
+
+    <string name="mediastore_edit">Edit Media File</string>
+    <string name="mediastore_delete">Delete Media File</string>
+    <string name="mediastore_downloads">Add Document to Downloads</string>
+
+    <!-- SAF Demos -->
+    <string name="saf_action_create_label">Create Document</string>
+    <string name="saf_action_open_label">Open Document</string>
+    <string name="saf_action_open_folder_label">Open Folder</string>
+
+    <string name="saf_create_file_output">File: \n%1$s\n\nContents: \n%2$s</string>
+    <string name="saf_open_file_output">File: \n%1$s\n\nContents hash: \n%2$s</string>
+    <string name="saf_folder_output">Folder contents: \n%1$s</string>
+
+</resources>
