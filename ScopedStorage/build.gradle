@@ -22,7 +22,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.2'
+        classpath 'com.android.tools.build:gradle:4.1.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -30,13 +30,28 @@ buildscript {
     }
 }
 
-allprojects {
+plugins {
+    id 'com.diffplug.spotless' version '5.11.0'
+}
+
+subprojects {
     repositories {
         google()
         jcenter()
     }
-}
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+    apply plugin: 'com.diffplug.spotless'
+    spotless {
+        kotlin {
+            target '**/*.kt'
+            targetExclude("$buildDir/**/*.kt")
+            targetExclude('bin/**/*.kt')
+            trimTrailingWhitespace()
+            endWithNewline()
+
+
+            ktlint('0.41.0')
+            licenseHeaderFile rootProject.file('spotless/copyright.kt')
+        }
+    }
 }
