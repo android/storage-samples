@@ -1,0 +1,12 @@
+version: 2
+updates:
+
+  # Scoped Storage
+  - package-ecosystem: "gradle"
+    directory: "/ScopedStorage"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "yrezgui"
