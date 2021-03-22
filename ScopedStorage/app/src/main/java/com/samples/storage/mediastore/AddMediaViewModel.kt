@@ -27,6 +27,14 @@ import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+
+private const val RANDOM_IMAGE_URL = "https://source.unsplash.com/random/500x500"
 
 class AddMediaViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -36,11 +44,13 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
     val isPermissionGranted: Boolean
         get() = canWriteInMediaStore(context)
 
+    private val httpClient by lazy { OkHttpClient() }
+
     // We keep the current Media in the viewmodel to re-render it if there is a configuration change
     private val _currentMediaUri: MutableLiveData<Uri?> = MutableLiveData()
     val currentMediaUri: LiveData<Uri?> = _currentMediaUri
 
-    fun loadMedia() {
+    fun loadCameraMedia() {
         // Once we get a result from [TakePicture] and [TakeVideo], we set the _currentMediaUri
         // property, which will trigger a rerender of the ImageView in the layout
         _currentMediaUri.value = temporaryMediaUri
@@ -75,7 +85,7 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
     }
 
     // We create a URI where the camera will store the video
-    fun createVideoUri(): Uri? {
+    fun createVideoUri(source: Source): Uri? {
         val videoCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         } else {
@@ -83,13 +93,40 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
         }
 
         val newVideo = ContentValues().apply {
-            put(MediaStore.Video.Media.DISPLAY_NAME, generateFilename(Source.CAMERA, "mp4"))
+            put(MediaStore.Video.Media.DISPLAY_NAME, generateFilename(source, "mp4"))
         }
 
         val uri = context.contentResolver.insert(videoCollection, newVideo)
         temporaryMediaUri = uri
 
         return uri
+    }
+
+    fun saveRandomImageFromInternet() {
+        viewModelScope.launch {
+            val imageUri = createPhotoUri(Source.INTERNET)
+            val request = Request.Builder().url(RANDOM_IMAGE_URL).build()
+
+            withContext(Dispatchers.IO) {
+                val response = httpClient.newCall(request).execute()
+
+                response.body?.let { responseBody ->
+                    imageUri?.let { destinationUri ->
+                        context.contentResolver.openOutputStream(destinationUri, "w")?.let {
+                            responseBody.byteStream().copyTo(it)
+
+                            // Once we save the image, we need to set the_currentMediaUri. We can't
+                            // use `loadCameraMedia` as updating the MutableLiveData in a background
+                            // thread requires to use `postValue`
+                            _currentMediaUri.postValue(temporaryMediaUri)
+
+                            // Finally we clear the value of the temporaryMediaUri property
+                            temporaryMediaUri = null
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -104,7 +141,7 @@ private fun canWriteInMediaStore(context: Context): Boolean {
 }
 
 enum class Source {
-    CAMERA, INTERNET, GENERATED
+    CAMERA, INTERNET
 }
 
 private fun generateFilename(source: Source, extension: String): String {
@@ -114,9 +151,6 @@ private fun generateFilename(source: Source, extension: String): String {
         }
         Source.INTERNET -> {
             "internet-${System.currentTimeMillis()}.$extension"
-        }
-        Source.GENERATED -> {
-            "generated-${System.currentTimeMillis()}.$extension"
         }
     }
 }
