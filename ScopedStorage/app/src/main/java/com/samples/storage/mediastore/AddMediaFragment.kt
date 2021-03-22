@@ -21,26 +21,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
+import androidx.activity.result.contract.ActivityResultContracts.TakeVideo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import coil.load
 import com.samples.storage.databinding.FragmentAddMediaBinding
 
-// TODO(yrezgui): Add media from camera (video), from internet and generated one
+// TODO(yrezgui): Add UI permission logic
 class AddMediaFragment : Fragment() {
     private var _binding: FragmentAddMediaBinding? = null
     private val binding get() = _binding!!
     private val viewModel: AddMediaViewModel by viewModels()
-
-    private val actionTakePicture = registerForActivityResult(TakePicture()) { success ->
-        if (!success) {
-            Log.d(tag, "Image taken FAIL: ${viewModel.temporaryMediaUri}")
-            return@registerForActivityResult
-        }
-
-        Log.d(tag, "Image taken SUCCESS: ${viewModel.temporaryMediaUri}")
-        viewModel.loadMedia()
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentAddMediaBinding.inflate(inflater, container, false)
@@ -59,11 +50,41 @@ class AddMediaFragment : Fragment() {
             }
         }
 
+        binding.takeVideoButton.setOnClickListener {
+            viewModel.createVideoUri(Source.CAMERA)?.let { uri ->
+                actionTakeVideo.launch(uri)
+            }
+        }
+
+        binding.downloadImageFromInternetButton.setOnClickListener {
+            viewModel.saveRandomImageFromInternet()
+        }
+
         return binding.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private val actionTakePicture = registerForActivityResult(TakePicture()) { success ->
+        if (!success) {
+            Log.d(tag, "Image taken FAIL: ${viewModel.temporaryMediaUri}")
+            return@registerForActivityResult
+        }
+
+        Log.d(tag, "Image taken SUCCESS: ${viewModel.temporaryMediaUri}")
+        viewModel.loadCameraMedia()
+    }
+
+    private val actionTakeVideo = registerForActivityResult(TakeVideo()) { result ->
+        if (result == null) {
+            Log.d(tag, "Video taken FAIL: ${viewModel.temporaryMediaUri}")
+            return@registerForActivityResult
+        }
+
+        Log.d(tag, "Video taken SUCCESS: ${viewModel.temporaryMediaUri}")
+        viewModel.loadCameraMedia()
     }
 }

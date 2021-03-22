@@ -25,7 +25,7 @@ android {
 
     defaultConfig {
         applicationId "com.samples.storage"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -67,6 +67,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.documentfile:documentfile:1.0.1'
     implementation 'io.coil-kt:coil:1.1.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
