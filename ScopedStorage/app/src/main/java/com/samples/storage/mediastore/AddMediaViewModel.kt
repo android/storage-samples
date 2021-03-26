@@ -110,9 +110,9 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
             withContext(Dispatchers.IO) {
                 val response = httpClient.newCall(request).execute()
 
-                response.body?.let { responseBody ->
+                response.body?.use { responseBody ->
                     imageUri?.let { destinationUri ->
-                        context.contentResolver.openOutputStream(destinationUri, "w")?.let {
+                        context.contentResolver.openOutputStream(destinationUri, "w")?.use {
                             responseBody.byteStream().copyTo(it)
 
                             // Once we save the image, we need to set the_currentMediaUri. We can't
