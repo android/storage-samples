@@ -89,6 +89,7 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == OPEN_DOCUMENT_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             resultData?.data?.also { documentUri ->
 
+                // デバイスの再起動後もファイルへのアクセス権を維持したい場合は takePersistableUriPermission  を呼び出す必要がある.
                 /**
                  * Upon getting a document uri returned, we can use
                  * [ContentResolver.takePersistableUriPermission] in order to persist the
@@ -114,6 +115,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // ACTION_OPEN_DOCUMENT インテントを使ってファイルピッカーを起動する
     private fun openDocumentPicker() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             /**
