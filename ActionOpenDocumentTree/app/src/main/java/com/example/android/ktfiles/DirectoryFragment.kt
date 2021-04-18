@@ -73,17 +73,17 @@ class DirectoryFragment : Fragment() {
 
         recyclerView.adapter = adapter
 
-        viewModel.documents.observe(this, Observer { documents ->
+        viewModel.documents.observe(viewLifecycleOwner, Observer { documents ->
             documents?.let { adapter.setEntries(documents) }
         })
 
-        viewModel.openDirectory.observe(this, Observer { event ->
+        viewModel.openDirectory.observe(viewLifecycleOwner, Observer { event ->
             event.getContentIfNotHandled()?.let { directory ->
                 (activity as? MainActivity)?.showDirectoryContents(directory.uri)
             }
         })
 
-        viewModel.openDocument.observe(this, Observer { event ->
+        viewModel.openDocument.observe(viewLifecycleOwner, Observer { event ->
             event.getContentIfNotHandled()?.let { document ->
                 openDocument(document)
             }
