@@ -22,7 +22,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.transaction
+import androidx.fragment.app.commit
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.activity_main.toolbar
 
@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showDirectoryContents(directoryUri: Uri) {
-        supportFragmentManager.transaction {
+        supportFragmentManager.commit {
             val directoryTag = directoryUri.toString()
             val directoryFragment = DirectoryFragment.newInstance(directoryUri)
             replace(R.id.fragment_container, directoryFragment, directoryTag)
