@@ -24,8 +24,10 @@ import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.activity.result.contract.ActivityResultContracts.TakeVideo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.samples.storage.databinding.FragmentAddMediaBinding
+import kotlinx.coroutines.launch
 
 // TODO(yrezgui): Add UI permission logic
 class AddMediaFragment : Fragment() {
@@ -45,19 +47,30 @@ class AddMediaFragment : Fragment() {
         }
 
         binding.takePictureButton.setOnClickListener {
-            viewModel.createPhotoUri(Source.CAMERA)?.let { uri ->
-                actionTakePicture.launch(uri)
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.createPhotoUri(Source.CAMERA)?.let { uri ->
+                    viewModel.saveTemporarilyCameraMediaUri(uri)
+                    actionTakePicture.launch(uri)
+                }
             }
         }
 
         binding.takeVideoButton.setOnClickListener {
-            viewModel.createVideoUri(Source.CAMERA)?.let { uri ->
-                actionTakeVideo.launch(uri)
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.createVideoUri(Source.CAMERA)?.let { uri ->
+                    viewModel.saveTemporarilyCameraMediaUri(uri)
+                    actionTakeVideo.launch(uri)
+                }
             }
         }
 
         binding.downloadImageFromInternetButton.setOnClickListener {
-            viewModel.saveRandomImageFromInternet()
+            binding.downloadImageFromInternetButton.isEnabled = false
+            viewModel.saveRandomImageFromInternet {
+                // We re-enable the button once the download is done
+                // Keep in mind the logic is basic as it doesn't handle errors
+                binding.downloadImageFromInternetButton.isEnabled = true
+            }
         }
 
         return binding.root
@@ -70,21 +83,21 @@ class AddMediaFragment : Fragment() {
 
     private val actionTakePicture = registerForActivityResult(TakePicture()) { success ->
         if (!success) {
-            Log.d(tag, "Image taken FAIL: ${viewModel.temporaryMediaUri}")
+            Log.d(tag, "Image taken FAIL")
             return@registerForActivityResult
         }
 
-        Log.d(tag, "Image taken SUCCESS: ${viewModel.temporaryMediaUri}")
+        Log.d(tag, "Image taken SUCCESS")
         viewModel.loadCameraMedia()
     }
 
     private val actionTakeVideo = registerForActivityResult(TakeVideo()) { result ->
         if (result == null) {
-            Log.d(tag, "Video taken FAIL: ${viewModel.temporaryMediaUri}")
+            Log.d(tag, "Video taken FAIL")
             return@registerForActivityResult
         }
 
-        Log.d(tag, "Video taken SUCCESS: ${viewModel.temporaryMediaUri}")
+        Log.d(tag, "Video taken SUCCESS")
         viewModel.loadCameraMedia()
     }
 }
