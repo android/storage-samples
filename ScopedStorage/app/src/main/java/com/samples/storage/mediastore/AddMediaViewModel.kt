@@ -34,6 +34,9 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
+/**
+ * URL returning random picture provided by Unsplash. Read more here: https://source.unsplash.com
+ */
 private const val RANDOM_IMAGE_URL = "https://source.unsplash.com/random/500x500"
 
 class AddMediaViewModel(application: Application) : AndroidViewModel(application) {
@@ -53,6 +56,9 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
     // We keep the current Media in the viewmodel to re-render it if there is a configuration change
     private val _currentMediaUri: MutableLiveData<Uri?> = MutableLiveData()
     val currentMediaUri: LiveData<Uri?> = _currentMediaUri
+    /**
+     * We keep the current Media in the viewmodel to re-render it if there is a configuration change
+     */
 
     fun loadCameraMedia() {
         // Once we get a result from [TakePicture] and [TakeVideo], we set the _currentMediaUri
@@ -143,9 +149,13 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
     }
 }
 
+/**
+ * Check if the app can writes on the shared storage
+ *
+ * On Android 10 (API 29), we can add media to MediaStore without having to request the
+ * [WRITE_EXTERNAL_STORAGE] permission, so we only check on pre-API 29 devices
+ */
 private fun canWriteInMediaStore(context: Context): Boolean {
-    // On Android 10 (API 29), we can add media to MediaStore without having to request the
-    // WRITE_EXTERNAL_STORAGE permission, so we only check on pre-API 29 devices
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         true
     } else {
