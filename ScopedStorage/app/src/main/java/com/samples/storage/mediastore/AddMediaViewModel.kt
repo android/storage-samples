@@ -44,6 +44,10 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
     val isPermissionGranted: Boolean
         get() = canWriteInMediaStore(context)
 
+    /**
+     * Using lazy to instantiate the [OkHttpClient] only when accessing it, not when the viewmodel
+     * is created
+     */
     private val httpClient by lazy { OkHttpClient() }
 
     // We keep the current Media in the viewmodel to re-render it if there is a configuration change
@@ -66,7 +70,9 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
      */
     var temporaryMediaUri: Uri? = null
 
-    // We create a URI where the camera will store the image
+    /**
+     * We create a [Uri] where the camera will store the image
+     */
     fun createPhotoUri(source: Source): Uri? {
         val imageCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
@@ -102,6 +108,11 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
         return uri
     }
 
+    /**
+     * [TakePicture] and [TakeVideo] activityResult actions isn't returning the URI once it's
+     * returning the result, so we need to keep the temporarily created URI until the action is
+     * finished
+     */
     fun saveRandomImageFromInternet() {
         viewModelScope.launch {
             val imageUri = createPhotoUri(Source.INTERNET)
@@ -110,6 +121,8 @@ class AddMediaViewModel(application: Application) : AndroidViewModel(application
             withContext(Dispatchers.IO) {
                 val response = httpClient.newCall(request).execute()
 
+                // .use is an extension function that closes the stream once its lambda is finished
+                // being executed
                 response.body?.use { responseBody ->
                     imageUri?.let { destinationUri ->
                         context.contentResolver.openOutputStream(destinationUri, "w")?.use {
