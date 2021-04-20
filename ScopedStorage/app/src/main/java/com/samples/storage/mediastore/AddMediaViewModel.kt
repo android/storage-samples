@@ -60,24 +60,23 @@ class AddMediaViewModel(application: Application, private val savedStateHandle: 
     val currentMediaUri: LiveData<Uri?> = savedStateHandle.getLiveData<Uri?>("currentMediaUri")
 
     /**
-     * TakePicture and TakeVideo activityResult actions aren't returning the [Uri] once it's
-     * returning the result, so we need to save the temporarily created URI in [savedStateHandle]
-     * until the action is returning a result
+     * TakePicture activityResult action isn't returning the [Uri] once the image has been taken, so
+     * we need to save the temporarily created URI in [savedStateHandle] until we handle its result
      */
-    fun saveTemporarilyCameraMediaUri(uri: Uri?) {
-        savedStateHandle["temporaryCameraMediaUri"] = uri
+    fun saveTemporarilyPhotoUri(uri: Uri?) {
+        savedStateHandle["temporaryPhotoUri"] = uri
     }
+
+    val temporaryPhotoUri: Uri?
+        get() = savedStateHandle.get<Uri?>("temporaryPhotoUri")
 
     /**
      * [loadCameraMedia] is called when TakePicture or TakeVideo intent is returning a
      * successful result, that we set to the currentMediaUri property, which will
      * trigger to load the thumbnail in the UI
      */
-    fun loadCameraMedia() {
-        savedStateHandle["currentMediaUri"] = savedStateHandle.get<Uri?>("temporaryCameraMediaUri")
-
-        // Finally we clear the value of the temporaryCameraMediaUri property
-        savedStateHandle["temporaryCameraMediaUri"] = null
+    fun loadCameraMedia(uri: Uri) {
+        savedStateHandle["currentMediaUri"] = uri
     }
 
     /**

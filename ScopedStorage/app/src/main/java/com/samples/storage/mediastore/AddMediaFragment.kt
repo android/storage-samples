@@ -21,11 +21,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
-import androidx.activity.result.contract.ActivityResultContracts.TakeVideo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import coil.load
+import com.bumptech.glide.Glide
 import com.samples.storage.databinding.FragmentAddMediaBinding
 import kotlinx.coroutines.launch
 
@@ -38,18 +37,15 @@ class AddMediaFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentAddMediaBinding.inflate(inflater, container, false)
 
-        // Once we've added a media, we set its URI to the currentMediaUri property.
-        // Every time
+        // Every time currentMediaUri is changed, we update the ImageView
         viewModel.currentMediaUri.observe(viewLifecycleOwner) { uri ->
-            binding.mediaThumbnail.load(uri) {
-                crossfade(true)
-            }
+            Glide.with(this).load(uri).into(binding.mediaThumbnail)
         }
 
         binding.takePictureButton.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
                 viewModel.createPhotoUri(Source.CAMERA)?.let { uri ->
-                    viewModel.saveTemporarilyCameraMediaUri(uri)
+                    viewModel.saveTemporarilyPhotoUri(uri)
                     actionTakePicture.launch(uri)
                 }
             }
@@ -58,7 +54,6 @@ class AddMediaFragment : Fragment() {
         binding.takeVideoButton.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
                 viewModel.createVideoUri(Source.CAMERA)?.let { uri ->
-                    viewModel.saveTemporarilyCameraMediaUri(uri)
                     actionTakeVideo.launch(uri)
                 }
             }
@@ -88,16 +83,20 @@ class AddMediaFragment : Fragment() {
         }
 
         Log.d(tag, "Image taken SUCCESS")
-        viewModel.loadCameraMedia()
+
+        viewModel.temporaryPhotoUri?.let {
+            viewModel.loadCameraMedia(it)
+            viewModel.saveTemporarilyPhotoUri(null)
+        }
     }
 
-    private val actionTakeVideo = registerForActivityResult(TakeVideo()) { result ->
-        if (result == null) {
+    private val actionTakeVideo = registerForActivityResult(CustomTakeVideo()) { uri ->
+        if (uri == null) {
             Log.d(tag, "Video taken FAIL")
             return@registerForActivityResult
         }
 
         Log.d(tag, "Video taken SUCCESS")
-        viewModel.loadCameraMedia()
+        viewModel.loadCameraMedia(uri)
     }
 }
