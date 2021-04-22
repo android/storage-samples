@@ -26,8 +26,9 @@
     <string name="mediastore_take_picture_camera">Take Picture</string>
     <string name="mediastore_take_video_camera">Take Video</string>
     <string name="mediastore_download_image_internet">Download Picture</string>
-    <string name="mediastore_generate_simple_image">Generate Unicolor Picture</string>
     <string name="mediastore_added_media_contentdescription">Newly added media</string>
+    <string name="request_permission_message">To add media files, we need to request the storage permission</string>
+    <string name="request_permission">Request Permission</string>
 
     <string name="mediastore_edit">Edit Media File</string>
     <string name="mediastore_delete">Delete Media File</string>
