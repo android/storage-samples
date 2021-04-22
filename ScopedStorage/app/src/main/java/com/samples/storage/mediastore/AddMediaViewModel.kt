@@ -44,8 +44,8 @@ class AddMediaViewModel(application: Application, private val savedStateHandle: 
     private val context: Context
         get() = getApplication()
 
-    val isPermissionGranted: Boolean
-        get() = canWriteInMediaStore(context)
+    val canWriteInMediaStore: Boolean
+        get() = checkMediaStorePermission(context)
 
     /**
      * Using lazy to instantiate the [OkHttpClient] only when accessing it, not when the viewmodel
@@ -165,7 +165,7 @@ class AddMediaViewModel(application: Application, private val savedStateHandle: 
  * On Android 10 (API 29), we can add media to MediaStore without having to request the
  * [WRITE_EXTERNAL_STORAGE] permission, so we only check on pre-API 29 devices
  */
-private fun canWriteInMediaStore(context: Context): Boolean {
+private fun checkMediaStorePermission(context: Context): Boolean {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         true
     } else {
