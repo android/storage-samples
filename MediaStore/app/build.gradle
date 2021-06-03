@@ -38,8 +38,8 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-    dataBinding {
-        enabled true
+    buildFeatures {
+        dataBinding true
     }
     kotlinOptions {
         jvmTarget = "1.8"
