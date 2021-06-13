@@ -22,8 +22,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.samples.storage.databinding.FragmentListBinding
-import com.samples.storage.ui.Action
-import com.samples.storage.ui.ActionListAdapter
 
 private val apiList = arrayOf(
     Action(R.string.demo_mediastore, R.id.action_mainFragment_to_mediaStoreFragment),
