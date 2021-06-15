@@ -46,8 +46,7 @@ import okhttp3.Request
 import okhttp3.ResponseBody
 import java.io.File
 import java.net.URLConnection
-import java.nio.file.Files
-import java.nio.file.attribute.FileTime
+
 
 private const val TAG = "AddDocumentViewModel"
 
@@ -131,9 +130,9 @@ class AddDocumentViewModel(
         withContext(Dispatchers.IO) {
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val uri = addFileToDownloadsApi29(filename)
-                    val outputStream = context.contentResolver.openOutputStream(uri, "w")
-                        ?: throw Exception("ContentResolver couldn't open $uri outputStream")
+                    val newFileUri = addFileToDownloadsApi29(filename)
+                    val outputStream = context.contentResolver.openOutputStream(newFileUri, "w")
+                        ?: throw Exception("ContentResolver couldn't open $newFileUri outputStream")
 
                     val responseBody = downloadFileFromInternet(randomRemoteUrl)
 
@@ -150,18 +149,18 @@ class AddDocumentViewModel(
                         }
                     }
 
-                    Log.d(TAG, "File downloaded ($uri)")
+                    Log.d(TAG, "File downloaded ($newFileUri)")
 
-                    val path = getMediaStoreEntryPathApi29(uri)
-                        ?: throw Exception("ContentResolver couldn't find $uri")
+                    val path = getMediaStoreEntryPathApi29(newFileUri)
+                        ?: throw Exception("ContentResolver couldn't find $newFileUri")
 
                     // We scan the newly added file to make sure MediaStore.Downloads is always up
                     // to date
-                    scanFilePath(path, responseBody.contentType().toString()) {
-                        Log.d(TAG, "MediaStore updated ($path)")
+                    scanFilePath(path, responseBody.contentType().toString()) { uri ->
+                        Log.d(TAG, "MediaStore updated ($path, $uri)")
 
                         viewModelScope.launch {
-                            val fileDetails = getFileDetailsApi29(uri)
+                            val fileDetails = getFileDetails(uri)
                             Log.d(TAG, "New file: $fileDetails")
 
                             _currentFileEntry.postValue(fileDetails)
@@ -191,15 +190,11 @@ class AddDocumentViewModel(
 
                     // We scan the newly added file to make sure MediaStore.Files is always up to
                     // date
-                    scanFilePath(file.path, responseBody.contentType().toString()) {
-                        Log.d(TAG, "MediaStore updated ($file.path)")
+                    scanFilePath(file.path, responseBody.contentType().toString()) { uri ->
+                        Log.d(TAG, "MediaStore updated ($file.path, $uri)")
 
                         viewModelScope.launch {
-                            val fileDetails = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                getFileDetailsApi26(file.absolutePath)
-                            } else {
-                                getFileDetailsApi21(file.absolutePath)
-                            }
+                            val fileDetails = getFileDetails(uri)
                             Log.d(TAG, "New file: $fileDetails")
 
                             _currentFileEntry.postValue(fileDetails)
@@ -274,10 +269,10 @@ class AddDocumentViewModel(
      * size, even though the file is definitely not empty. MediaStore will eventually scan the file
      * but it's better to do it ourselves to have a fresher state whenever we can
      */
-    private suspend fun scanFilePath(path: String, mimeType: String, callback: () -> Unit) {
+    private suspend fun scanFilePath(path: String, mimeType: String, callback: (uri: Uri) -> Unit) {
         withContext(Dispatchers.IO) {
-            MediaScannerConnection.scanFile(context, arrayOf(path), arrayOf(mimeType)) { _, _ ->
-                callback()
+            MediaScannerConnection.scanFile(context, arrayOf(path), arrayOf(mimeType)) { _, uri ->
+                callback(uri)
             }
         }
     }
@@ -311,7 +306,7 @@ class AddDocumentViewModel(
      * It uses the classic java.io APIs but can't get the added time as there's not a reliable way
      * to do so until Api 26
      */
-    private suspend fun getFileDetailsApi21(path: String): FileEntry? {
+    private suspend fun getFileDetailsIoApi21(path: String): FileEntry? {
         return withContext(Dispatchers.IO) {
             val file = File(path)
 
@@ -331,41 +326,11 @@ class AddDocumentViewModel(
     }
 
     /**
-     * Get file details on Api 26
-     *
-     * It uses java.nio APIs to get the mime type and added time properties
-     */
-    @Suppress("BlockingMethodInNonBlockingContext")
-    @RequiresApi(Build.VERSION_CODES.O)
-    private suspend fun getFileDetailsApi26(path: String): FileEntry? {
-        return withContext(Dispatchers.IO) {
-            val file = File(path)
-
-            if (!file.exists()) {
-                return@withContext null
-            }
-
-            return@withContext FileEntry(
-                filename = file.name,
-                size = file.length(),
-                mimeType = Files.probeContentType(file.toPath()),
-                addedAt = (
-                    Files.getAttribute(
-                        file.toPath(),
-                        "creationTime"
-                    ) as FileTime
-                    ).toMillis(),
-                path = path
-            )
-        }
-    }
-
-    /**
-     * Get file details on Api 29
+     * Get file details on Api 21
      *
      * It uses MediaStore to all the file properties
      */
-    private suspend fun getFileDetailsApi29(uri: Uri): FileEntry? {
+    private suspend fun getFileDetails(uri: Uri): FileEntry? {
         return withContext(Dispatchers.IO) {
             val cursor = context.contentResolver.query(
                 uri,
