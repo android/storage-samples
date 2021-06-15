@@ -47,7 +47,6 @@ import okhttp3.ResponseBody
 import java.io.File
 import java.net.URLConnection
 
-
 private const val TAG = "AddDocumentViewModel"
 
 class AddDocumentViewModel(
