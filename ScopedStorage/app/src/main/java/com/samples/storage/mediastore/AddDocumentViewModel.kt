@@ -361,7 +361,8 @@ class AddDocumentViewModel(
                     filename = cursor.getString(displayNameColumn),
                     size = cursor.getLong(sizeColumn),
                     mimeType = cursor.getString(mimeTypeColumn),
-                    addedAt = cursor.getLong(dateAddedColumn),
+                    // FileColumns.DATE_ADDED is in seconds, not milliseconds
+                    addedAt = cursor.getLong(dateAddedColumn) * 1000,
                     path = cursor.getString(dataColumn),
                 )
             }
