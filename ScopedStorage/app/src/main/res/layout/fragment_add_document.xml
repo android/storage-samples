@@ -35,10 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:text="@string/request_permission_message"
-            android:textAlignment="center"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/file_details" />
+            android:textAlignment="center" />
 
         <Button
             android:id="@+id/requestPermissionButton"
@@ -68,9 +65,7 @@
             android:id="@+id/file_size_and_mime_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="20dp"
-            android:lineSpacingMultiplier="1.5"
+            android:layout_marginTop="8dp"
             tools:text="15 KB &#183; application/pdf"
             android:textAppearance="?attr/textAppearanceBody2" />
 
@@ -78,9 +73,7 @@
             android:id="@+id/file_added_at"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="20dp"
-            android:lineSpacingMultiplier="1.5"
+            android:layout_marginTop="8dp"
             tools:text="17:00, Oct 31, 2007"
             android:textAppearance="?attr/textAppearanceBody2" />
 
@@ -88,7 +81,7 @@
             android:id="@+id/file_path"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="8dp"
             android:textAppearance="?attr/textAppearanceCaption"
             tools:text="/storage/emulated/0/Download/sample.pdf" />
     </LinearLayout>

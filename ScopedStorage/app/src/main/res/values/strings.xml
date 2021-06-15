@@ -32,6 +32,8 @@
     <string name="mediastore_added_media_contentdescription">Newly added media</string>
 
     <string name="mediastore_download_random_file_internet">Download Random File</string>
+    <string name="mediastore_file_size_and_mimetype">%1$s &#183; %2$s</string>
+    <string name="mediastore_file_added_at">Added on %1$s</string>
 
     <string name="mediastore_edit">Edit Media File</string>
     <string name="mediastore_delete">Delete Media File</string>

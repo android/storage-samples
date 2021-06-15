@@ -33,6 +33,8 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.samples.storage.data.SampleFiles
@@ -41,20 +43,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.ResponseBody
 import java.io.File
-import java.io.OutputStream
 import java.net.URLConnection
 import java.nio.file.Files
 import java.nio.file.attribute.FileTime
 
-// TODO(yrezgui): Use the viewModel in AddDocumentFragment (all the logic is already written)
+private const val TAG = "AddDocumentViewModel"
+
 // TODO(yrezgui): Create a file details property and keep it in the savedStateHandle
 class AddDocumentViewModel(
     application: Application,
-    private val savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
-    private val TAG = "AddDocumentViewModel"
-
     private val context: Context
         get() = getApplication()
 
@@ -70,6 +71,37 @@ class AddDocumentViewModel(
      */
     private val httpClient by lazy { OkHttpClient() }
 
+    /**
+     * We keep the current [FileEntry] in the savedStateHandle to re-render it if there is a
+     * configuration change and we expose it as a [LiveData] to the UI
+     */
+    private var _isDownloading: MutableLiveData<Boolean> = MutableLiveData(false)
+    val isDownloading: LiveData<Boolean> = _isDownloading
+
+    /**
+     * We keep the current [FileEntry] in the savedStateHandle to re-render it if there is a
+     * configuration change and we expose it as a [LiveData] to the UI
+     */
+    private var _currentFileEntry: MutableLiveData<FileEntry> = MutableLiveData(null)
+    val currentFileEntry: LiveData<FileEntry> = _currentFileEntry
+
+    init {
+        val fileEntryBundle = savedStateHandle.get<Bundle>("current_file")
+        if (fileEntryBundle != null) {
+            _currentFileEntry.value = FileEntry.fromBundle(fileEntryBundle)
+        }
+        savedStateHandle.setSavedStateProvider("current_file") { // saveState()
+            if (_currentFileEntry.value != null) {
+                _currentFileEntry.value!!.toBundle()
+            } else {
+                Bundle()
+            }
+        }
+    }
+
+    /**
+     * Generate random filename when saving a new file
+     */
     private fun generateFilename(extension: String) = "${System.currentTimeMillis()}.$extension"
 
     /**
@@ -91,53 +123,95 @@ class AddDocumentViewModel(
 
     @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun addRandomFile() {
+        _isDownloading.postValue(true)
+
         val randomRemoteUrl = SampleFiles.nonMedia.random()
-        val extension = randomRemoteUrl.substring(randomRemoteUrl.lastIndexOf("."))
+        val extension = randomRemoteUrl.substring(randomRemoteUrl.lastIndexOf(".") + 1)
         val filename = generateFilename(extension)
-        lateinit var outputStream: OutputStream
 
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val uri = addFileToDownloadsApi29(filename)
-                outputStream = context.contentResolver.openOutputStream(uri, "w")
-                    ?: throw Exception("ContentResolver couldn't open $uri outputStream")
+        withContext(Dispatchers.IO) {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val uri = addFileToDownloadsApi29(filename)
+                    val outputStream = context.contentResolver.openOutputStream(uri, "w")
+                        ?: throw Exception("ContentResolver couldn't open $uri outputStream")
 
-                downloadFileFromInternet(randomRemoteUrl, outputStream)
-                Log.d(TAG, "File downloaded ($uri)")
+                    val responseBody = downloadFileFromInternet(randomRemoteUrl)
 
-                val path = getMediaStoreEntryPathApi29(uri)
-                    ?: throw Exception("ContentResolver couldn't find $uri")
-                scanFileApi(path) {
-                    Log.d(TAG, "MediaStore updated ($path)")
-
-                    viewModelScope.launch {
-                        val fileDetails = getFileDetailsApi29(uri)
-                        Log.d(TAG, "New file: $fileDetails")
+                    if (responseBody == null) {
+                        _isDownloading.postValue(false)
+                        return@withContext
                     }
-                }
-            } else {
-                val file = addFileToDownloadsApi21(filename)
-                outputStream = file.outputStream()
 
-                downloadFileFromInternet(randomRemoteUrl, outputStream)
-                Log.d(TAG, "File downloaded (${file.absolutePath})")
-
-                scanFileApi(file.absolutePath) {
-                    Log.d(TAG, "MediaStore updated (${file.absolutePath})")
-
-                    viewModelScope.launch {
-                        val fileDetails = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            getFileDetailsApi26(file.absolutePath)
-                        } else {
-                            getFileDetailsApi21(file.absolutePath)
+                    // .use is an extension function that closes the output stream where we're
+                    // saving the file content once its lambda is finished being executed
+                    responseBody.use {
+                        outputStream.use {
+                            responseBody.byteStream().copyTo(it)
                         }
+                    }
 
-                        Log.d(TAG, "New file: $fileDetails")
+                    Log.d(TAG, "File downloaded ($uri)")
+
+                    val path = getMediaStoreEntryPathApi29(uri)
+                        ?: throw Exception("ContentResolver couldn't find $uri")
+
+                    // We scan the newly added file to make sure MediaStore.Downloads is always up
+                    // to date
+                    scanFilePath(path, responseBody.contentType().toString()) {
+                        Log.d(TAG, "MediaStore updated ($path)")
+
+                        viewModelScope.launch {
+                            val fileDetails = getFileDetailsApi29(uri)
+                            Log.d(TAG, "New file: $fileDetails")
+
+                            _currentFileEntry.postValue(fileDetails)
+                            _isDownloading.postValue(false)
+                        }
+                    }
+                } else {
+                    val file = addFileToDownloadsApi21(filename)
+                    val outputStream = file.outputStream()
+
+                    val responseBody = downloadFileFromInternet(randomRemoteUrl)
+
+                    if (responseBody == null) {
+                        _isDownloading.postValue(false)
+                        return@withContext
+                    }
+
+                    // .use is an extension function that closes the output stream where we're
+                    // saving the file content once its lambda is finished being executed
+                    responseBody.use {
+                        outputStream.use {
+                            responseBody.byteStream().copyTo(it)
+                        }
+                    }
+
+                    Log.d(TAG, "File downloaded (${file.absolutePath})")
+
+                    // We scan the newly added file to make sure MediaStore.Files is always up to
+                    // date
+                    scanFilePath(file.path, responseBody.contentType().toString()) {
+                        Log.d(TAG, "MediaStore updated ($file.path)")
+
+                        viewModelScope.launch {
+                            val fileDetails = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                getFileDetailsApi26(file.absolutePath)
+                            } else {
+                                getFileDetailsApi21(file.absolutePath)
+                            }
+                            Log.d(TAG, "New file: $fileDetails")
+
+                            _currentFileEntry.postValue(fileDetails)
+                            _isDownloading.postValue(false)
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, e.toString())
+                _isDownloading.postValue(false)
             }
-        } catch (e: Exception) {
-            Log.e(TAG, e.toString())
         }
     }
 
@@ -145,23 +219,13 @@ class AddDocumentViewModel(
      * Downloads a random file from internet and saves its content to the specified outputStream
      */
     @Suppress("BlockingMethodInNonBlockingContext")
-    private suspend fun downloadFileFromInternet(
-        url: String,
-        outputStream: OutputStream
-    ) {
+    private suspend fun downloadFileFromInternet(url: String): ResponseBody? {
         // We use OkHttp to create HTTP request
         val request = Request.Builder().url(url).build()
 
-        withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.IO) {
             val response = httpClient.newCall(request).execute()
-
-            // .use is an extension function that closes the output stream where we're
-            // saving the file content once its lambda is finished being executed
-            response.body?.use { responseBody ->
-                outputStream.use {
-                    responseBody.byteStream().copyTo(it)
-                }
-            }
+            return@withContext response.body
         }
     }
 
@@ -211,9 +275,9 @@ class AddDocumentViewModel(
      * size, even though the file is definitely not empty. MediaStore will eventually scan the file
      * but it's better to do it ourselves to have a fresher state whenever we can
      */
-    private suspend fun scanFileApi(path: String, callback: () -> Unit) {
+    private suspend fun scanFilePath(path: String, mimeType: String, callback: () -> Unit) {
         withContext(Dispatchers.IO) {
-            MediaScannerConnection.scanFile(context, arrayOf(path), emptyArray()) { path, uri ->
+            MediaScannerConnection.scanFile(context, arrayOf(path), arrayOf(mimeType)) { _, _ ->
                 callback()
             }
         }
