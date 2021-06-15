@@ -51,7 +51,6 @@ import java.nio.file.attribute.FileTime
 
 private const val TAG = "AddDocumentViewModel"
 
-// TODO(yrezgui): Create a file details property and keep it in the savedStateHandle
 class AddDocumentViewModel(
     application: Application,
     savedStateHandle: SavedStateHandle
