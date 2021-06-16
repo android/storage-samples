@@ -23,15 +23,14 @@ import android.content.pm.PackageManager
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle
 import android.os.Environment
 import android.os.Environment.DIRECTORY_DOWNLOADS
+import android.os.Parcelable
 import android.provider.MediaStore
 import android.provider.MediaStore.Files.FileColumns
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -41,6 +40,7 @@ import com.samples.storage.data.SampleFiles
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.parcelize.Parcelize
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.ResponseBody
@@ -51,7 +51,7 @@ private const val TAG = "AddDocumentViewModel"
 
 class AddDocumentViewModel(
     application: Application,
-    savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
     private val context: Context
         get() = getApplication()
@@ -79,22 +79,7 @@ class AddDocumentViewModel(
      * We keep the current [FileEntry] in the savedStateHandle to re-render it if there is a
      * configuration change and we expose it as a [LiveData] to the UI
      */
-    private var _currentFileEntry: MutableLiveData<FileEntry> = MutableLiveData(null)
-    val currentFileEntry: LiveData<FileEntry> = _currentFileEntry
-
-    init {
-        val fileEntryBundle = savedStateHandle.get<Bundle>("current_file")
-        if (fileEntryBundle != null) {
-            _currentFileEntry.value = FileEntry.fromBundle(fileEntryBundle)
-        }
-        savedStateHandle.setSavedStateProvider("current_file") { // saveState()
-            if (_currentFileEntry.value != null) {
-                _currentFileEntry.value!!.toBundle()
-            } else {
-                Bundle()
-            }
-        }
-    }
+    val currentFileEntry = savedStateHandle.getLiveData<FileEntry>("current_file")
 
     /**
      * Generate random filename when saving a new file
@@ -162,7 +147,7 @@ class AddDocumentViewModel(
                             val fileDetails = getFileDetails(uri)
                             Log.d(TAG, "New file: $fileDetails")
 
-                            _currentFileEntry.postValue(fileDetails)
+                            savedStateHandle["current_file"] = fileDetails
                             _isDownloading.postValue(false)
                         }
                     }
@@ -196,7 +181,7 @@ class AddDocumentViewModel(
                             val fileDetails = getFileDetails(uri)
                             Log.d(TAG, "New file: $fileDetails")
 
-                            _currentFileEntry.postValue(fileDetails)
+                            savedStateHandle["current_file"] = fileDetails
                             _isDownloading.postValue(false)
                         }
                     }
@@ -369,45 +354,11 @@ class AddDocumentViewModel(
     }
 }
 
+@Parcelize
 data class FileEntry(
     val filename: String,
     val size: Long,
     val mimeType: String,
     val addedAt: Long,
     val path: String
-) {
-    companion object {
-        /**
-         * Create a [FileEntry] from a [Bundle] when loading [SavedStateHandle]
-         */
-        fun fromBundle(bundle: Bundle): FileEntry? {
-            return if (bundle.containsKey("filename") &&
-                bundle.containsKey("size") &&
-                bundle.containsKey("mimeType") &&
-                bundle.containsKey("addedAt") &&
-                bundle.containsKey("path")
-            ) {
-                FileEntry(
-                    filename = bundle.getString("filename")!!,
-                    size = bundle.getLong("size"),
-                    mimeType = bundle.getString("mimeType")!!,
-                    addedAt = bundle.getLong("addedAt"),
-                    path = bundle.getString("path")!!
-                )
-            } else {
-                null
-            }
-        }
-    }
-
-    /**
-     * Export [FileEntry] as a [Bundle] when saving [SavedStateHandle]
-     */
-    fun toBundle() = bundleOf(
-        "filename" to filename,
-        "size" to size,
-        "mimeType" to mimeType,
-        "addedAt" to addedAt,
-        "path" to path
-    )
-}
+) : Parcelable
