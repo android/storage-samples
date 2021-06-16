@@ -45,7 +45,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.ResponseBody
 import java.io.File
-import java.net.URLConnection
 
 private const val TAG = "AddDocumentViewModel"
 
@@ -285,9 +284,7 @@ class AddDocumentViewModel(
     }
 
     /**
-     * Get file details on Api 21
-     *
-     * It uses MediaStore to all the file properties
+     * Get file details using the MediaStore API
      */
     private suspend fun getFileDetails(uri: Uri): FileEntry? {
         return withContext(Dispatchers.IO) {
