@@ -15,6 +15,9 @@
  */
 package com.samples.storage.data
 
+/**
+ * List of remote sample files to be used in the different samples
+ */
 object SampleFiles {
     val images = listOf(
         "https://storage.googleapis.com/android-tv/Sample%20videos/Demo%20Slam/Google%20Demo%20Slam_%20Balcony%20Toss/card.jpg",
