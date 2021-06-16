@@ -287,31 +287,6 @@ class AddDocumentViewModel(
     /**
      * Get file details on Api 21
      *
-     * It uses the classic java.io APIs but can't get the added time as there's not a reliable way
-     * to do so until Api 26
-     */
-    private suspend fun getFileDetailsIoApi21(path: String): FileEntry? {
-        return withContext(Dispatchers.IO) {
-            val file = File(path)
-
-            if (!file.exists()) {
-                return@withContext null
-            }
-
-            return@withContext FileEntry(
-                filename = file.name,
-                size = file.length(),
-                mimeType = URLConnection.guessContentTypeFromName(file.name),
-                // There are no reliable ways to get the added time on Api 26
-                addedAt = -1,
-                path = path
-            )
-        }
-    }
-
-    /**
-     * Get file details on Api 21
-     *
      * It uses MediaStore to all the file properties
      */
     private suspend fun getFileDetails(uri: Uri): FileEntry? {
