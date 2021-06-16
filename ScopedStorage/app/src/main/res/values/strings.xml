@@ -18,17 +18,22 @@
     <string name="app_name">Storage APIs</string>
 
     <!-- Demo types -->
-    <string name="demo_mediastore">Media Store</string>
+    <string name="demo_mediastore">MediaStore</string>
     <string name="demo_saf">Storage Access Framework</string>
 
     <!-- Media Store Demos -->
+    <string name="request_permission_message">To add files, we need to request the storage permission</string>
+    <string name="request_permission">Request Permission</string>
+
     <string name="mediastore_add">Add Media File</string>
     <string name="mediastore_take_picture_camera">Take Picture</string>
     <string name="mediastore_take_video_camera">Take Video</string>
     <string name="mediastore_download_image_internet">Download Picture</string>
     <string name="mediastore_added_media_contentdescription">Newly added media</string>
-    <string name="request_permission_message">To add media files, we need to request the storage permission</string>
-    <string name="request_permission">Request Permission</string>
+
+    <string name="mediastore_download_random_file_internet">Download Random File</string>
+    <string name="mediastore_file_size_and_mimetype">%1$s &#183; %2$s</string>
+    <string name="mediastore_file_added_at">Added on %1$s</string>
 
     <string name="mediastore_edit">Edit Media File</string>
     <string name="mediastore_delete">Delete Media File</string>

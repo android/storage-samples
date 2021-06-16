@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -51,7 +51,7 @@ class AddMediaFragment : Fragment() {
         binding.takePictureButton.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
 
-                if(viewModel.canWriteInMediaStore) {
+                if (viewModel.canWriteInMediaStore) {
                     viewModel.createPhotoUri(Source.CAMERA)?.let { uri ->
                         viewModel.saveTemporarilyPhotoUri(uri)
                         actionTakePicture.launch(uri)
@@ -65,8 +65,7 @@ class AddMediaFragment : Fragment() {
         binding.takeVideoButton.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
 
-
-                if(viewModel.canWriteInMediaStore) {
+                if (viewModel.canWriteInMediaStore) {
                     viewModel.createVideoUri(Source.CAMERA)?.let { uri ->
                         actionTakeVideo.launch(uri)
                     }
@@ -78,7 +77,7 @@ class AddMediaFragment : Fragment() {
 
         binding.downloadImageFromInternetButton.setOnClickListener {
 
-            if(viewModel.canWriteInMediaStore) {
+            if (viewModel.canWriteInMediaStore) {
                 binding.downloadImageFromInternetButton.isEnabled = false
                 viewModel.saveRandomImageFromInternet {
                     // We re-enable the button once the download is done
