@@ -31,7 +31,7 @@ buildscript {
 }
 
 plugins {
-    id 'com.diffplug.spotless' version '5.12.5'
+    id 'com.diffplug.spotless' version '5.14.0'
     id 'org.jetbrains.kotlin.android' version '1.5.10' apply false
 }
 
