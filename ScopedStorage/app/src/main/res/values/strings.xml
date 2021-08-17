@@ -1,3 +1,36 @@
 <resources>
     <string name="app_name">Scoped Storage</string>
+
+    <string name="back_button_label">Go to Previous screen</string>
+    <string name="demo_not_available_yet_label">This demo hasn\'t been written yet</string>
+
+    <string name="demo_add_media_file_name">Add Media</string>
+    <string name="demo_add_media_file_description">Add media file from local source</string>
+
+    <string name="demo_download_media_file_name">Download Media</string>
+    <string name="demo_download_media_file_description">Download media file from internet</string>
+
+    <string name="demo_capture_media_file_name">Capture Media</string>
+    <string name="demo_capture_media_file_description">Capture media using camera intents</string>
+
+    <string name="demo_add_file_to_downloads_name">Add File to Downloads</string>
+    <string name="demo_add_file_to_downloads_description">Add file to the Downloads folder</string>
+
+    <string name="demo_edit_media_file_name">Edit Media</string>
+    <string name="demo_edit_media_file_description">Edit media file using MediaStore</string>
+
+    <string name="demo_delete_media_file_name">Delete Media</string>
+    <string name="demo_delete_media_file_description">Delete media file using MediaStore</string>
+
+    <string name="demo_list_media_files_name">List Media Files</string>
+    <string name="demo_list_media_files_description">Query MediaStore to list indexed files</string>
+
+    <string name="demo_select_document_file_name">Select Document File</string>
+    <string name="demo_select_document_file_description">Read file using Storage Access Framework</string>
+
+    <string name="demo_create_document_file_name">Create Document File</string>
+    <string name="demo_create_document_file_description">Create file using Storage Access Framework</string>
+
+    <string name="demo_edit_document_file_name">Edit Document File</string>
+    <string name="demo_edit_document_file_description">Edit file using Storage Access Framework</string>
 </resources>
