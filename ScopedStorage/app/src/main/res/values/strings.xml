@@ -3,9 +3,12 @@
 
     <string name="back_button_label">Go to Previous screen</string>
     <string name="demo_not_available_yet_label">This demo hasn\'t been written yet</string>
+    <string name="empty_state_label">Get started by triggering one of the actions below</string>
 
     <string name="demo_add_media_file_name">Add Media</string>
     <string name="demo_add_media_file_description">Add media file from local source</string>
+    <string name="demo_add_image_label">Add image</string>
+    <string name="demo_add_video_label">Add video</string>
 
     <string name="demo_download_media_file_name">Download Media</string>
     <string name="demo_download_media_file_description">Download media file from internet</string>

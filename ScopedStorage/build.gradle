@@ -16,6 +16,10 @@ buildscript {
     }
 }
 
+plugins {
+    id "org.jetbrains.kotlin.plugin.parcelize" version "1.4.32" apply false
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }

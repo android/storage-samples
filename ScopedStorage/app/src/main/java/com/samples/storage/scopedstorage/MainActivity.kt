@@ -3,10 +3,12 @@ package com.samples.storage.scopedstorage
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Divider
@@ -24,9 +26,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.samples.storage.scopedstorage.mediastore.AddMediaFileScreen
 import com.samples.storage.scopedstorage.ui.theme.ScopedStorageTheme
 
 class MainActivity : ComponentActivity() {
+    @ExperimentalFoundationApi
     @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,29 +38,22 @@ class MainActivity : ComponentActivity() {
             ScopedStorageTheme {
                 val navController = rememberNavController()
 
-                Scaffold(
-                    topBar = {
-                        TopAppBar(title = { Text(stringResource(R.string.app_name)) })
-                    },
-                    content = {
-                        NavHost(navController = navController, startDestination = HomeRoute) {
-                            composable(HomeRoute) {
-                                HomeScreen(navController)
-                            }
-
-                            composable(Demos.AddMediaFile.route) { NotAvailableYetScreen() }
-                            composable(Demos.CaptureMediaFile.route) { NotAvailableYetScreen() }
-                            composable(Demos.DownloadMediaFile.route) { NotAvailableYetScreen() }
-                            composable(Demos.AddFileToDownloads.route) { NotAvailableYetScreen() }
-                            composable(Demos.EditMediaFile.route) { NotAvailableYetScreen() }
-                            composable(Demos.DeleteMediaFile.route) { NotAvailableYetScreen() }
-                            composable(Demos.ListMediaFiles.route) { NotAvailableYetScreen() }
-                            composable(Demos.SelectDocumentFile.route) { NotAvailableYetScreen() }
-                            composable(Demos.CreateDocumentFile.route) { NotAvailableYetScreen() }
-                            composable(Demos.EditDocumentFile.route) { NotAvailableYetScreen() }
-                        }
+                NavHost(navController = navController, startDestination = Demos.AddMediaFile.route) {
+                    composable(HomeRoute) {
+                        HomeScreen(navController)
                     }
-                )
+
+                    composable(Demos.AddMediaFile.route) { AddMediaFileScreen() }
+                    composable(Demos.CaptureMediaFile.route) { NotAvailableYetScreen() }
+                    composable(Demos.DownloadMediaFile.route) { NotAvailableYetScreen() }
+                    composable(Demos.AddFileToDownloads.route) { NotAvailableYetScreen() }
+                    composable(Demos.EditMediaFile.route) { NotAvailableYetScreen() }
+                    composable(Demos.DeleteMediaFile.route) { NotAvailableYetScreen() }
+                    composable(Demos.ListMediaFiles.route) { NotAvailableYetScreen() }
+                    composable(Demos.SelectDocumentFile.route) { NotAvailableYetScreen() }
+                    composable(Demos.CreateDocumentFile.route) { NotAvailableYetScreen() }
+                    composable(Demos.EditDocumentFile.route) { NotAvailableYetScreen() }
+                }
             }
         }
     }
@@ -67,17 +64,24 @@ const val HomeRoute = "home"
 @ExperimentalMaterialApi
 @Composable
 fun HomeScreen(navController: NavController) {
-    LazyColumn {
-        items(Demos.list) { demo ->
-            ListItem(
-                modifier = Modifier.clickable { navController.navigate(demo.route) },
-                text = { Text(stringResource(demo.name)) },
-                secondaryText = { Text(stringResource(demo.description)) },
-                icon = { Icon(demo.icon, contentDescription = null) }
-            )
-            Divider()
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text(stringResource(R.string.app_name)) })
+        },
+        content = { paddingValues ->
+            LazyColumn(Modifier.padding(paddingValues)) {
+                items(Demos.list) { demo ->
+                    ListItem(
+                        modifier = Modifier.clickable { navController.navigate(demo.route) },
+                        text = { Text(stringResource(demo.name)) },
+                        secondaryText = { Text(stringResource(demo.description)) },
+                        icon = { Icon(demo.icon, contentDescription = null) }
+                    )
+                    Divider()
+                }
+            }
         }
-    }
+    )
 }
 
 @Composable
