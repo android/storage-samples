@@ -23,6 +23,7 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +39,7 @@ import com.samples.storage.scopedstorage.common.compositeBorderColor
 fun AddMediaFileScreen(viewModel: AddMediaFileViewModel = viewModel()) {
     val scaffoldState = rememberScaffoldState()
     val error by viewModel.errorFlow.collectAsState(null)
+    val addedMedia by viewModel.addedMedia.observeAsState()
 
     LaunchedEffect(error) {
         println("Hi LaunchedEffect")
@@ -53,14 +55,17 @@ fun AddMediaFileScreen(viewModel: AddMediaFileViewModel = viewModel()) {
         },
         content = { paddingValues ->
             Column(Modifier.padding(paddingValues)) {
-                EmptyFilePreviewCard()
-//        MediaFilePreviewCard(
-//            filename = "5569256558656.jpg",
-//            mimeType = "image/jpeg",
-//            size = 15500,
-                //content://media/external_primary/images/media/345
-//            path = "/videos/5569256558656.jpg"
-//        )
+                if(addedMedia != null) {
+                    MediaFilePreviewCard(
+                        filename = addedMedia!!.filename,
+                        mimeType = addedMedia!!.mimeType,
+                        size = addedMedia!!.size,
+                        path = addedMedia!!.path
+                    )
+                } else {
+                    EmptyFilePreviewCard()
+                }
+
                 LazyVerticalGrid(cells = GridCells.Fixed(2)) {
                     item {
                         Button(

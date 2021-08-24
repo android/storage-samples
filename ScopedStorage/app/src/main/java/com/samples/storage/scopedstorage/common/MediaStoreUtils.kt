@@ -4,11 +4,13 @@ import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.core.content.ContextCompat.checkSelfPermission
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
 object MediaStoreUtils {
@@ -90,9 +92,45 @@ object MediaStoreUtils {
     }
 
     /**
-     * Returns a [FileResource] if it finds its [Uri] in MediaStore otherwise returns `null`.
-     *
-     * @param uri [Uri] representing the MediaStore entry.
+     * Get file path from a [MediaStore] [Uri]
+     */
+    private suspend fun getPathByUri(context: Context, uri: Uri): String? = withContext(Dispatchers.IO) {
+        val cursor = context.contentResolver.query(
+            uri,
+            arrayOf(MediaStore.Files.FileColumns.DATA),
+            null,
+            null,
+            null
+        ) ?: throw Exception("Uri $uri could not be found")
+
+        cursor.use {
+            if (!cursor.moveToFirst()) {
+                throw Exception("Uri $uri could not be found")
+            }
+
+            cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA))
+        }
+    }
+
+    /**
+     * Scan file path in [MediaStore] using [MediaScannerConnection]
+     */
+    suspend fun scanFilePath(context: Context, path: String, mimeType: String): Uri? {
+        return suspendCancellableCoroutine { continuation ->
+            MediaScannerConnection.scanFile(context, arrayOf(path), arrayOf(mimeType)) { _, scannedUri ->
+                if (scannedUri == null) {
+                    throw Exception("File $path could not be scanned")
+                }
+
+                continuation.resume()
+
+                continuation.resume(scannedUri)
+            }
+        }
+    }
+
+    /**
+     * Returns a [FileResource] if it finds its [Uri] in MediaStore.
      */
     suspend fun getResourceByUri(context: Context, uri: Uri): FileResource =
         withContext(Dispatchers.IO) {
@@ -132,7 +170,6 @@ object MediaStoreUtils {
                 val mimeTypeColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
                 val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)
-
 
                 FileResource(
                     id = cursor.getInt(idColumn),

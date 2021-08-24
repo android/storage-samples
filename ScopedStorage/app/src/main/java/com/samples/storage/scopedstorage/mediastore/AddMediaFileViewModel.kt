@@ -12,8 +12,10 @@ import com.samples.storage.scopedstorage.common.MediaStoreUtils
 import kotlinx.coroutines.launch
 import android.graphics.Bitmap
 import android.util.Log
+import com.samples.storage.scopedstorage.common.FileResource
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import java.io.File
 import java.io.IOException
 
 
@@ -36,7 +38,7 @@ class AddMediaFileViewModel(
      * We keep the current media [Uri] in the savedStateHandle to re-render it if there is a
      * configuration change and we expose it as a [LiveData] to the UI
      */
-    val currentMediaUri: LiveData<Uri?> = savedStateHandle.getLiveData<Uri?>("currentMediaUri")
+    val addedMedia: LiveData<FileResource?> = savedStateHandle.getLiveData<FileResource?>("addedMedia")
 
     fun addImage() {
         viewModelScope.launch {
@@ -50,10 +52,10 @@ class AddMediaFileViewModel(
                 _errorFlow.emit("Couldn't create an image Uri\n$filename")
             } else {
                 try {
-                    context.contentResolver.openOutputStream(imageUri, "r")?.use { outputStream ->
+                    context.contentResolver.openOutputStream(imageUri, "w")?.use { outputStream ->
                         generatedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
                     }
-                    savedStateHandle["currentMediaUri"] = imageUri
+                    savedStateHandle["addedMedia"] = MediaStoreUtils.getResourceByUri(context, imageUri)
                 } catch (e: IOException) {
                     Log.e(TAG, e.printStackTrace().toString())
                     _errorFlow.emit("Couldn't save the image\n$imageUri")
