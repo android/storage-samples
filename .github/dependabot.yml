@@ -64,15 +64,6 @@ updates:
       - dependency-type: "direct"
     assignees:
       - "yrezgui"
-  # MediaStore
-  - package-ecosystem: "gradle"
-    directory: "/MediaStore"
-    schedule:
-      interval: "monthly"
-    allow:
-      - dependency-type: "direct"
-    assignees:
-      - "yrezgui"
   # SafDemos
   - package-ecosystem: "gradle"
     directory: "/SafDemos"
@@ -94,15 +85,6 @@ updates:
   # SharingShortcuts
   - package-ecosystem: "gradle"
     directory: "/SharingShortcuts"
-    schedule:
-      interval: "monthly"
-    allow:
-      - dependency-type: "direct"
-    assignees:
-      - "yrezgui"
-  # MediaStore
-  - package-ecosystem: "gradle"
-    directory: "/MediaStore"
     schedule:
       interval: "monthly"
     allow:
