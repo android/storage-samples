@@ -13,10 +13,14 @@ import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.material.Button
 import androidx.compose.material.Card
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,7 +33,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.samples.storage.scopedstorage.Demos
+import com.samples.storage.scopedstorage.HomeRoute
 import com.samples.storage.scopedstorage.R
 import com.samples.storage.scopedstorage.common.FileResource
 import com.samples.storage.scopedstorage.common.compositeBorderColor
@@ -37,7 +43,10 @@ import com.skydoves.landscapist.glide.GlideImage
 
 @ExperimentalFoundationApi
 @Composable
-fun AddMediaFileScreen(viewModel: AddMediaFileViewModel = viewModel()) {
+fun AddMediaFileScreen(
+    navController: NavController,
+    viewModel: AddMediaFileViewModel = viewModel()
+) {
     val scaffoldState = rememberScaffoldState()
     val error by viewModel.errorFlow.collectAsState(null)
     val addedMedia by viewModel.addedMedia.observeAsState()
@@ -51,7 +60,12 @@ fun AddMediaFileScreen(viewModel: AddMediaFileViewModel = viewModel()) {
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(Demos.AddMediaFile.name)) }
+                title = { Text(stringResource(Demos.AddMediaFile.name)) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack(HomeRoute, false) }) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Go to Previous screen")
+                    }
+                }
             )
         },
         content = { paddingValues ->
