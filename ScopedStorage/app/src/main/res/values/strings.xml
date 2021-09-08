@@ -10,9 +10,6 @@
     <string name="demo_add_image_label">Add image</string>
     <string name="demo_add_video_label">Add video</string>
 
-    <string name="demo_download_media_file_name">Download Media</string>
-    <string name="demo_download_media_file_description">Download media file from internet</string>
-
     <string name="demo_capture_media_file_name">Capture Media</string>
     <string name="demo_capture_media_file_description">Capture media using camera intents</string>
 

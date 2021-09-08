@@ -55,19 +55,6 @@ object Demos {
         )
     )
 
-    val DownloadMediaFile = Demo(
-        route = "demo_download_media_file",
-        name = R.string.demo_download_media_file_name,
-        description = R.string.demo_download_media_file_description,
-        icon = Icons.Filled.FileDownload,
-        links = listOf(
-            Link(
-                "Add MediaStore item guide",
-                Uri.parse("https://developer.android.com/training/data-storage/shared/media#add-item")
-            )
-        )
-    )
-
     val AddFileToDownloads = Demo(
         route = "demo_add_file_to_downloads",
         name = R.string.demo_add_file_to_downloads_name,
@@ -128,7 +115,6 @@ object Demos {
     val list = listOf(
         AddMediaFile,
         CaptureMediaFile,
-        DownloadMediaFile,
         AddFileToDownloads,
         EditMediaFile,
         DeleteMediaFile,

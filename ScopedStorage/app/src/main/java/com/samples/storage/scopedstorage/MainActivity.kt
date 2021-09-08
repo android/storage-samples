@@ -36,7 +36,6 @@ class MainActivity : ComponentActivity() {
 
                     composable(Demos.AddMediaFile.route) { AddMediaFileScreen(navController) }
                     composable(Demos.CaptureMediaFile.route) { NotAvailableYetScreen() }
-                    composable(Demos.DownloadMediaFile.route) { NotAvailableYetScreen() }
                     composable(Demos.AddFileToDownloads.route) { NotAvailableYetScreen() }
                     composable(Demos.EditMediaFile.route) { NotAvailableYetScreen() }
                     composable(Demos.DeleteMediaFile.route) { NotAvailableYetScreen() }
