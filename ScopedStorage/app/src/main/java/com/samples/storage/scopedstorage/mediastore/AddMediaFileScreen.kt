@@ -3,10 +3,8 @@ package com.samples.storage.scopedstorage.mediastore
 import android.text.format.Formatter.formatShortFileSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,16 +21,19 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.samples.storage.scopedstorage.Demos
 import com.samples.storage.scopedstorage.R
+import com.samples.storage.scopedstorage.common.FileResource
 import com.samples.storage.scopedstorage.common.compositeBorderColor
+import com.skydoves.landscapist.glide.GlideImage
 
 @ExperimentalFoundationApi
 @Composable
@@ -55,13 +56,8 @@ fun AddMediaFileScreen(viewModel: AddMediaFileViewModel = viewModel()) {
         },
         content = { paddingValues ->
             Column(Modifier.padding(paddingValues)) {
-                if(addedMedia != null) {
-                    MediaFilePreviewCard(
-                        filename = addedMedia!!.filename,
-                        mimeType = addedMedia!!.mimeType,
-                        size = addedMedia!!.size,
-                        path = addedMedia!!.path
-                    )
+                if (addedMedia != null) {
+                    MediaFilePreviewCard(addedMedia!!)
                 } else {
                     EmptyFilePreviewCard()
                 }
@@ -77,7 +73,7 @@ fun AddMediaFileScreen(viewModel: AddMediaFileViewModel = viewModel()) {
                     item {
                         Button(
                             modifier = Modifier.padding(16.dp),
-                            onClick = { /*TODO*/ }) {
+                            onClick = { viewModel.addVideo() }) {
                             Text(stringResource(R.string.demo_add_video_label))
                         }
                     }
@@ -110,8 +106,9 @@ fun EmptyFilePreviewCard() {
 }
 
 @Composable
-fun MediaFilePreviewCard(filename: String, mimeType: String, size: Long, path: String) {
-    val fileMetadata = "$mimeType - ${formatShortFileSize(null, size)}"
+fun MediaFilePreviewCard(resource: FileResource) {
+    val context = LocalContext.current
+    val fileMetadata = "${resource.mimeType} - ${formatShortFileSize(context, resource.size)}"
 
     Card(
         elevation = 0.dp,
@@ -121,16 +118,16 @@ fun MediaFilePreviewCard(filename: String, mimeType: String, size: Long, path: S
             .fillMaxWidth()
     ) {
         Column {
-            Image(
-                painter = rememberImagePainter("https://lh3.googleusercontent.com/JT8ts9Khjsle_n-AWenqQkqHKtImeYr7q0DKAvvRy5KHl2edYmB_oUMTq70dVse_cslq0joryDbr4KLu1Xabo5Lal5908IZcftWotV8WTp4IECLitIU=w1064-v0"),
-                contentDescription = null,
+            GlideImage(
+                imageModel = resource.uri,
+                contentDescription = null
             )
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = filename, style = MaterialTheme.typography.subtitle2)
+                Text(text = resource.filename, style = MaterialTheme.typography.subtitle2)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = fileMetadata, style = MaterialTheme.typography.caption)
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(text = path, style = MaterialTheme.typography.caption)
+                Text(text = resource.path, style = MaterialTheme.typography.caption)
             }
         }
     }

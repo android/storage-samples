@@ -4,7 +4,6 @@ import android.net.Uri
 import android.os.Parcelable
 import android.provider.MediaStore.Files.FileColumns
 import kotlinx.parcelize.Parcelize
-import java.io.File
 
 /**
  * Represents an [android.provider.MediaStore] entry.
@@ -30,7 +29,6 @@ data class FileResource(
 /**
  *  Media type enum class representing the [FileColumns.MEDIA_TYPE] column
  */
-
 enum class FileType(val value: Int) {
     /**
      * Representing [FileColumns.MEDIA_TYPE_NONE]

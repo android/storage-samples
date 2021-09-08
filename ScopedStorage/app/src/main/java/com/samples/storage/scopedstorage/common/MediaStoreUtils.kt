@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat.checkSelfPermission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
 
 object MediaStoreUtils {
     /**
@@ -74,7 +75,8 @@ object MediaStoreUtils {
     }
 
     /**
-     * Convert a media [Uri] to a content [Uri] to be used when requesting [FileColumns] values.
+     * Convert a media [Uri] to a content [Uri] to be used when requesting
+     * [MediaStore.Files.FileColumns] values.
      *
      * Some columns are only available on the [MediaStore.Files] collection and this method converts
      * [Uri] from other MediaStore collections (e.g. [MediaStore.Images])
@@ -91,10 +93,7 @@ object MediaStoreUtils {
         }
     }
 
-    /**
-     * Get file path from a [MediaStore] [Uri]
-     */
-    private suspend fun getPathByUri(context: Context, uri: Uri): String? = withContext(Dispatchers.IO) {
+    suspend fun scanUri(context: Context, uri: Uri, mimeType: String): Uri? {
         val cursor = context.contentResolver.query(
             uri,
             arrayOf(MediaStore.Files.FileColumns.DATA),
@@ -103,28 +102,25 @@ object MediaStoreUtils {
             null
         ) ?: throw Exception("Uri $uri could not be found")
 
-        cursor.use {
+        val path = cursor.use {
             if (!cursor.moveToFirst()) {
                 throw Exception("Uri $uri could not be found")
             }
 
             cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA))
         }
-    }
 
-    /**
-     * Scan file path in [MediaStore] using [MediaScannerConnection]
-     */
-    suspend fun scanFilePath(context: Context, path: String, mimeType: String): Uri? {
         return suspendCancellableCoroutine { continuation ->
-            MediaScannerConnection.scanFile(context, arrayOf(path), arrayOf(mimeType)) { _, scannedUri ->
+            MediaScannerConnection.scanFile(
+                context,
+                arrayOf(path),
+                arrayOf(mimeType)
+            ) { _, scannedUri ->
                 if (scannedUri == null) {
-                    throw Exception("File $path could not be scanned")
+                    continuation.cancel(Exception("File $path could not be scanned"))
+                } else {
+                    continuation.resume(scannedUri)
                 }
-
-                continuation.resume()
-
-                continuation.resume(scannedUri)
             }
         }
     }

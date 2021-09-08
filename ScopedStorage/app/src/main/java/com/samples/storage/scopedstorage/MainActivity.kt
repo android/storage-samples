@@ -38,7 +38,10 @@ class MainActivity : ComponentActivity() {
             ScopedStorageTheme {
                 val navController = rememberNavController()
 
-                NavHost(navController = navController, startDestination = Demos.AddMediaFile.route) {
+                NavHost(
+                    navController = navController,
+                    startDestination = HomeRoute
+                ) {
                     composable(HomeRoute) {
                         HomeScreen(navController)
                     }
