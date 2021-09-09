@@ -49,12 +49,8 @@ fun EmptyFilePreviewCard() {
 @Composable
 fun MediaFilePreviewCard(resource: FileResource) {
     val context = LocalContext.current
-    val fileMetadata = "${resource.mimeType} - ${
-        Formatter.formatShortFileSize(
-            context,
-            resource.size
-        )
-    }"
+    val formattedFileSize = Formatter.formatShortFileSize(context, resource.size)
+    val fileMetadata = "${resource.mimeType} - $formattedFileSize"
 
     Card(
         elevation = 0.dp,
@@ -76,6 +72,29 @@ fun MediaFilePreviewCard(resource: FileResource) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(text = resource.path, style = MaterialTheme.typography.caption)
             }
+        }
+    }
+}
+
+@Composable
+fun DocumentFilePreviewCard(resource: FileResource) {
+    val context = LocalContext.current
+    val formattedFileSize = Formatter.formatShortFileSize(context, resource.size)
+    val fileMetadata = "${resource.mimeType} - $formattedFileSize"
+
+    Card(
+        elevation = 0.dp,
+        border = BorderStroke(width = 1.dp, color = compositeBorderColor()),
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = resource.filename, style = MaterialTheme.typography.subtitle2)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = fileMetadata, style = MaterialTheme.typography.caption)
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(text = resource.path, style = MaterialTheme.typography.caption)
         }
     }
 }

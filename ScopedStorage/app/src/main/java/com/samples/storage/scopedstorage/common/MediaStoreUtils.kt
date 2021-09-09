@@ -8,6 +8,7 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.checkSelfPermission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -75,6 +76,25 @@ object MediaStoreUtils {
     }
 
     /**
+     * We create a MediaStore [Uri] where an image will be stored
+     */
+    @RequiresApi(Build.VERSION_CODES.Q)
+    suspend fun createDownloadUri(context: Context, filename: String): Uri? {
+        val downloadsCollection =
+            MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+
+        return withContext(Dispatchers.IO) {
+            val newImage = ContentValues().apply {
+                put(MediaStore.Downloads.DISPLAY_NAME, filename)
+            }
+
+            // This method will perform a binder transaction which is better to execute off the main
+            // thread
+            return@withContext context.contentResolver.insert(downloadsCollection, newImage)
+        }
+    }
+
+    /**
      * Convert a media [Uri] to a content [Uri] to be used when requesting
      * [MediaStore.Files.FileColumns] values.
      *
@@ -90,6 +110,22 @@ object MediaStoreUtils {
             MediaStore.Files.getContentUri(MediaStore.getVolumeName(uri), entryId.toLong())
         } else {
             MediaStore.Files.getContentUri(uri.pathSegments[0], entryId.toLong())
+        }
+    }
+
+    suspend fun scanPath(context: Context, path: String, mimeType: String): Uri? {
+        return suspendCancellableCoroutine { continuation ->
+            MediaScannerConnection.scanFile(
+                context,
+                arrayOf(path),
+                arrayOf(mimeType)
+            ) { _, scannedUri ->
+                if (scannedUri == null) {
+                    continuation.cancel(Exception("File $path could not be scanned"))
+                } else {
+                    continuation.resume(scannedUri)
+                }
+            }
         }
     }
 
