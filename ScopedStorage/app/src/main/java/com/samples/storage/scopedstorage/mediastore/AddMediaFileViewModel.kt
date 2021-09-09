@@ -44,7 +44,7 @@ class AddMediaFileViewModel(
 
     fun addImage() {
         viewModelScope.launch {
-            val filename = "sample-${System.currentTimeMillis()}.jpg"
+            val filename = "added-${System.currentTimeMillis()}.jpg"
 
             val uri = MediaStoreUtils.createImageUri(context, filename)
                 ?: return@launch _errorFlow.emit("Couldn't create an image Uri\n$filename")
@@ -68,7 +68,7 @@ class AddMediaFileViewModel(
 
     fun addVideo() {
         viewModelScope.launch {
-            val filename = "sample-${System.currentTimeMillis()}.mp4"
+            val filename = "added-${System.currentTimeMillis()}.mp4"
 
             val uri = MediaStoreUtils.createVideoUri(context, filename)
                 ?: return@launch _errorFlow.emit("Couldn't create an video Uri\n$filename")

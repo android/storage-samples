@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.samples.storage.scopedstorage.mediastore.AddMediaFileScreen
+import com.samples.storage.scopedstorage.mediastore.CaptureMediaFileScreen
 import com.samples.storage.scopedstorage.ui.theme.ScopedStorageTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,7 +36,7 @@ class MainActivity : ComponentActivity() {
                     composable(HomeRoute) { HomeScreen(navController) }
 
                     composable(Demos.AddMediaFile.route) { AddMediaFileScreen(navController) }
-                    composable(Demos.CaptureMediaFile.route) { NotAvailableYetScreen() }
+                    composable(Demos.CaptureMediaFile.route) { CaptureMediaFileScreen(navController) }
                     composable(Demos.AddFileToDownloads.route) { NotAvailableYetScreen() }
                     composable(Demos.EditMediaFile.route) { NotAvailableYetScreen() }
                     composable(Demos.DeleteMediaFile.route) { NotAvailableYetScreen() }

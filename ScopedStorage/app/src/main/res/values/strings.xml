@@ -12,6 +12,8 @@
 
     <string name="demo_capture_media_file_name">Capture Media</string>
     <string name="demo_capture_media_file_description">Capture media using camera intents</string>
+    <string name="demo_capture_image_label">Capture image</string>
+    <string name="demo_capture_video_label">Capture video</string>
 
     <string name="demo_add_file_to_downloads_name">Add File to Downloads</string>
     <string name="demo_add_file_to_downloads_description">Add file to the Downloads folder</string>
