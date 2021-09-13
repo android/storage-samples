@@ -28,6 +28,9 @@
 
     <string name="demo_list_media_files_name">List Media Files</string>
     <string name="demo_list_media_files_description">Query MediaStore to list indexed files</string>
+    <string name="demo_list_media_loading">Loading…</string>
+    <string name="demo_list_media_failure">MediaStore couldn\'t return results. Check Logcat</string>
+    <string name="demo_list_media_no_files_found">No media files found</string>
 
     <string name="demo_select_document_file_name">Select Document File</string>
     <string name="demo_select_document_file_description">Read file using Storage Access Framework</string>

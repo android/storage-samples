@@ -1,6 +1,8 @@
 package com.samples.storage.scopedstorage.common
 
+import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
@@ -8,6 +10,7 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.provider.MediaStore.MediaColumns.DATE_ADDED
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.checkSelfPermission
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +19,12 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 
 object MediaStoreUtils {
+    /**
+     * Check if the app can read the shared storage
+     */
+    fun canReadInMediaStore(context: Context) =
+        checkSelfPermission(context, READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+
     /**
      * Check if the app can writes on the shared storage
      *
@@ -164,8 +173,8 @@ object MediaStoreUtils {
     /**
      * Returns a [FileResource] if it finds its [Uri] in MediaStore.
      */
-    suspend fun getResourceByUri(context: Context, uri: Uri): FileResource =
-        withContext(Dispatchers.IO) {
+    suspend fun getResourceByUri(context: Context, uri: Uri): FileResource {
+        return withContext(Dispatchers.IO) {
             // Convert generic media uri to content uri to get FileColumns.MEDIA_TYPE value
             val contentUri = convertMediaUriToContentUri(uri)
 
@@ -214,4 +223,66 @@ object MediaStoreUtils {
                 )
             }
         }
+    }
+
+
+    /**
+     * Returns a [FileResource] if it finds its [Uri] in MediaStore.
+     */
+    suspend fun getMediaResources(context: Context, limit: Int = 50): List<FileResource> {
+        return withContext(Dispatchers.IO) {
+            val mediaList = mutableListOf<FileResource>()
+            val externalContentUri = MediaStore.Files.getContentUri("external")
+                ?: throw Exception("External Storage not available")
+
+            val projection = arrayOf(
+                MediaStore.Files.FileColumns._ID,
+                MediaStore.Files.FileColumns.DISPLAY_NAME,
+                MediaStore.Files.FileColumns.SIZE,
+                MediaStore.Files.FileColumns.MEDIA_TYPE,
+                MediaStore.Files.FileColumns.MIME_TYPE,
+                MediaStore.Files.FileColumns.DATA,
+            )
+
+            val cursor = context.contentResolver.query(
+                externalContentUri,
+                projection,
+                null,
+                null,
+                "$DATE_ADDED DESC"
+            ) ?: throw Exception("Query could not be executed")
+
+            cursor.use {
+                while (cursor.moveToNext() && mediaList.size < limit) {
+                    val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)
+                    val displayNameColumn =
+                        cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
+                    val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
+                    val mediaTypeColumn =
+                        cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE)
+                    val mimeTypeColumn =
+                        cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
+                    val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)
+
+                    val id = cursor.getInt(idColumn)
+                    val contentUri: Uri = ContentUris.withAppendedId(
+                        externalContentUri,
+                        id.toLong()
+                    )
+
+                    mediaList += FileResource(
+                        id = id,
+                        uri = contentUri,
+                        filename = cursor.getString(displayNameColumn),
+                        size = cursor.getLong(sizeColumn),
+                        type = FileType.getEnum(cursor.getInt(mediaTypeColumn)),
+                        mimeType = cursor.getString(mimeTypeColumn),
+                        path = cursor.getString(dataColumn),
+                    )
+                }
+            }
+
+            return@withContext mediaList
+        }
+    }
 }

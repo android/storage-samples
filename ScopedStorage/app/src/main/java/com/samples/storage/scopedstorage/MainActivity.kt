@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import com.samples.storage.scopedstorage.mediastore.AddFileToDownloadsScreen
 import com.samples.storage.scopedstorage.mediastore.AddMediaFileScreen
 import com.samples.storage.scopedstorage.mediastore.CaptureMediaFileScreen
+import com.samples.storage.scopedstorage.mediastore.ListMediaFileScreen
 import com.samples.storage.scopedstorage.ui.theme.ScopedStorageTheme
 
 class MainActivity : ComponentActivity() {
@@ -34,18 +35,24 @@ class MainActivity : ComponentActivity() {
                     navController = navController,
                     startDestination = HomeRoute
                 ) {
-                    composable(HomeRoute) { HomeScreen(navController) }
+                    composable(HomeRoute) {
+                        HomeScreen(navController)
+                    }
 
-                    composable(Demos.AddMediaFile.route) { AddMediaFileScreen(navController) }
-                    composable(Demos.CaptureMediaFile.route) { CaptureMediaFileScreen(navController) }
+                    composable(Demos.AddMediaFile.route) {
+                        AddMediaFileScreen(navController)
+                    }
+                    composable(Demos.CaptureMediaFile.route) {
+                        CaptureMediaFileScreen(navController)
+                    }
                     composable(Demos.AddFileToDownloads.route) {
-                        AddFileToDownloadsScreen(
-                            navController
-                        )
+                        AddFileToDownloadsScreen(navController)
                     }
                     composable(Demos.EditMediaFile.route) { NotAvailableYetScreen() }
                     composable(Demos.DeleteMediaFile.route) { NotAvailableYetScreen() }
-                    composable(Demos.ListMediaFiles.route) { NotAvailableYetScreen() }
+                    composable(Demos.ListMediaFiles.route) {
+                        ListMediaFileScreen(navController)
+                    }
                     composable(Demos.SelectDocumentFile.route) { NotAvailableYetScreen() }
                     composable(Demos.CreateDocumentFile.route) { NotAvailableYetScreen() }
                     composable(Demos.EditDocumentFile.route) { NotAvailableYetScreen() }
