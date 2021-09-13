@@ -48,7 +48,7 @@ fun AddFileToDownloadsScreen(
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(Demos.AddMediaFile.name)) },
+                title = { Text(stringResource(Demos.AddFileToDownloads.name)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack(HomeRoute, false) }) {
                         Icon(
