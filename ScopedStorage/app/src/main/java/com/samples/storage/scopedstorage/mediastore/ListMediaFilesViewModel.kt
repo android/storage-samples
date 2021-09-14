@@ -41,7 +41,9 @@ class ListMediaFilesViewModel(application: Application) : AndroidViewModel(appli
     fun loadMedia() {
         viewModelScope.launch {
             _mediaQuery.value = MediaQuery(loading = true, success = false)
-            delay(5000L)
+
+            // Simulate delay
+            delay(3000L)
 
             try {
                 val results = MediaStoreUtils.getMediaResources(context, limit = 10)

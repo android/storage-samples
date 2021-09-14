@@ -14,5 +14,4 @@ import androidx.compose.ui.unit.dp
 fun compositeBorderColor(): Color = LocalContentColor.current.copy(alpha = BorderAlpha)
     .compositeOver(MaterialTheme.colors.background)
 
-val BorderWidth = 1.dp
 private const val BorderAlpha = 0.12f
