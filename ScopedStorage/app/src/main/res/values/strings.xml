@@ -34,6 +34,9 @@
 
     <string name="demo_select_document_file_name">Select Document File</string>
     <string name="demo_select_document_file_description">Read file using Storage Access Framework</string>
+    <string name="demo_select_any_document">Select any file</string>
+    <string name="demo_select_pdf_document">Select PDF file</string>
+    <string name="demo_select_zip_document">Select ZIP file</string>
 
     <string name="demo_create_document_file_name">Create Document File</string>
     <string name="demo_create_document_file_description">Create file using Storage Access Framework</string>

@@ -20,6 +20,7 @@ import com.samples.storage.scopedstorage.mediastore.AddFileToDownloadsScreen
 import com.samples.storage.scopedstorage.mediastore.AddMediaFileScreen
 import com.samples.storage.scopedstorage.mediastore.CaptureMediaFileScreen
 import com.samples.storage.scopedstorage.mediastore.ListMediaFileScreen
+import com.samples.storage.scopedstorage.saf.SelectDocumentFileScreen
 import com.samples.storage.scopedstorage.ui.theme.ScopedStorageTheme
 
 class MainActivity : ComponentActivity() {
@@ -53,7 +54,9 @@ class MainActivity : ComponentActivity() {
                     composable(Demos.ListMediaFiles.route) {
                         ListMediaFileScreen(navController)
                     }
-                    composable(Demos.SelectDocumentFile.route) { NotAvailableYetScreen() }
+                    composable(Demos.SelectDocumentFile.route) {
+                        SelectDocumentFileScreen(navController)
+                    }
                     composable(Demos.CreateDocumentFile.route) { NotAvailableYetScreen() }
                     composable(Demos.EditDocumentFile.route) { NotAvailableYetScreen() }
                 }
