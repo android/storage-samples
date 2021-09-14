@@ -6,10 +6,9 @@ import android.provider.MediaStore.Files.FileColumns
 import kotlinx.parcelize.Parcelize
 
 /**
- * Represents an [android.provider.MediaStore] entry.
+ * Represents a File entry.
  *
- * @property id Entry MediaStore id.
- * @property uri Entry MediaStore uri.
+ * @property uri Entry uri.
  * @property filename File name with extension.
  * @property size Size of the file in bytes.
  * @property type Entry file type.
@@ -17,13 +16,12 @@ import kotlinx.parcelize.Parcelize
  */
 @Parcelize
 data class FileResource(
-    val id: Int,
     val uri: Uri,
     val filename: String,
     val size: Long,
     val type: FileType,
     val mimeType: String,
-    val path: String,
+    val path: String?,
 ) : Parcelable
 
 /**

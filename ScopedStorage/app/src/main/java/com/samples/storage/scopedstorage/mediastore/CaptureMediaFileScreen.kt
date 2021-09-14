@@ -34,6 +34,7 @@ import androidx.navigation.NavController
 import com.samples.storage.scopedstorage.Demos
 import com.samples.storage.scopedstorage.HomeRoute
 import com.samples.storage.scopedstorage.R
+import com.samples.storage.scopedstorage.common.MediaFilePreviewCard
 import kotlinx.coroutines.launch
 
 @ExperimentalFoundationApi
@@ -89,7 +90,7 @@ fun CaptureMediaFileScreen(
                 if (capturedMedia != null) {
                     MediaFilePreviewCard(capturedMedia!!)
                 } else {
-                    EmptyFilePreviewCard()
+                    IntroCard()
                 }
 
                 LazyVerticalGrid(cells = GridCells.Fixed(2)) {

@@ -213,7 +213,6 @@ object MediaStoreUtils {
                 val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)
 
                 FileResource(
-                    id = cursor.getInt(idColumn),
                     uri = contentUri,
                     filename = cursor.getString(displayNameColumn),
                     size = cursor.getLong(sizeColumn),
@@ -271,7 +270,6 @@ object MediaStoreUtils {
                     )
 
                     mediaList += FileResource(
-                        id = id,
                         uri = contentUri,
                         filename = cursor.getString(displayNameColumn),
                         size = cursor.getLong(sizeColumn),

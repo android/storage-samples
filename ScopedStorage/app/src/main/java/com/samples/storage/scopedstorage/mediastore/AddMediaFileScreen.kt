@@ -27,6 +27,7 @@ import androidx.navigation.NavController
 import com.samples.storage.scopedstorage.Demos
 import com.samples.storage.scopedstorage.HomeRoute
 import com.samples.storage.scopedstorage.R
+import com.samples.storage.scopedstorage.common.MediaFilePreviewCard
 
 @ExperimentalFoundationApi
 @Composable
@@ -63,7 +64,7 @@ fun AddMediaFileScreen(
                 if (addedMedia != null) {
                     MediaFilePreviewCard(addedMedia!!)
                 } else {
-                    EmptyFilePreviewCard()
+                    IntroCard()
                 }
 
                 LazyVerticalGrid(cells = GridCells.Fixed(2)) {

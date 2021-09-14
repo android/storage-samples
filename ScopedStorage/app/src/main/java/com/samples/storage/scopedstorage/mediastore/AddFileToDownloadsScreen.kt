@@ -27,6 +27,7 @@ import androidx.navigation.NavController
 import com.samples.storage.scopedstorage.Demos
 import com.samples.storage.scopedstorage.HomeRoute
 import com.samples.storage.scopedstorage.R
+import com.samples.storage.scopedstorage.common.DocumentFilePreviewCard
 import com.samples.storage.scopedstorage.mediastore.AddFileToDownloadsViewModel.FileType
 
 @ExperimentalFoundationApi
@@ -64,7 +65,7 @@ fun AddFileToDownloadsScreen(
                 if (addedMedia != null) {
                     DocumentFilePreviewCard(addedMedia!!)
                 } else {
-                    EmptyFilePreviewCard()
+                    IntroCard()
                 }
 
                 LazyVerticalGrid(cells = GridCells.Fixed(2)) {

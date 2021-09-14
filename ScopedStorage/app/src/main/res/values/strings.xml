@@ -17,8 +17,8 @@
 
     <string name="demo_add_file_to_downloads_name">Add File to Downloads</string>
     <string name="demo_add_file_to_downloads_description">Add file to the Downloads folder</string>
-    <string name="demo_add_pdf_label">Add pdf</string>
-    <string name="demo_add_zip_label">Add zip</string>
+    <string name="demo_add_pdf_label">Add PDF</string>
+    <string name="demo_add_zip_label">Add ZIP</string>
 
     <string name="demo_edit_media_file_name">Edit Media</string>
     <string name="demo_edit_media_file_description">Edit media file using MediaStore</string>
