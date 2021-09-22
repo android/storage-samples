@@ -66,7 +66,6 @@ fun CaptureMediaFileScreen(
 
 
     LaunchedEffect(error) {
-        println("Hi LaunchedEffect")
         error?.let { scaffoldState.snackbarHostState.showSnackbar(it) }
     }
 

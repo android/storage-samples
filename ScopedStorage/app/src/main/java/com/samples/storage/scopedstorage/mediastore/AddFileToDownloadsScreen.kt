@@ -41,7 +41,6 @@ fun AddFileToDownloadsScreen(
     val addedMedia by viewModel.addedFile.observeAsState()
 
     LaunchedEffect(error) {
-        println("Hi LaunchedEffect")
         error?.let { scaffoldState.snackbarHostState.showSnackbar(it) }
     }
 
