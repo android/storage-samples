@@ -1,9 +1,108 @@
 version: 2
 updates:
 
-  # Scoped Storage
+  # ActionOpenDocument
+  - package-ecosystem: "gradle"
+    directory: "/ActionOpenDocument"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "yrezgui"
+  # ActionOpenDocumentTree
+  - package-ecosystem: "gradle"
+    directory: "/ActionOpenDocumentTree"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "yrezgui"
+  # ContentProviderPaging
+  - package-ecosystem: "gradle"
+    directory: "/ContentProviderPaging"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "yrezgui"
+  # ContentProviderPagingKotlin
+  - package-ecosystem: "gradle"
+    directory: "/ContentProviderPagingKotlin"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "yrezgui"
+  # FileManager 
+  - package-ecosystem: "gradle"
+    directory: "/FileManager"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "yrezgui"
+  # FileProvider
+  - package-ecosystem: "gradle"
+    directory: "/FileProvider"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "yrezgui"
+  # MediaStore
+  - package-ecosystem: "gradle"
+    directory: "/MediaStore"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "yrezgui"
+  # SafDemos
+  - package-ecosystem: "gradle"
+    directory: "/SafDemos"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "yrezgui"
+  # ScopedStorage
   - package-ecosystem: "gradle"
     directory: "/ScopedStorage"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "yrezgui"
+  # SharingShortcuts
+  - package-ecosystem: "gradle"
+    directory: "/SharingShortcuts"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "yrezgui"
+  # StorageClient
+  - package-ecosystem: "gradle"
+    directory: "/StorageClient"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "yrezgui"
+  # StorageProvider
+  - package-ecosystem: "gradle"
+    directory: "/StorageProvider"
     schedule:
       interval: "monthly"
     allow:
