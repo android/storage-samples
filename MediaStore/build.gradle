@@ -26,7 +26,7 @@ buildscript {
         glide_version = '4.12.0'
         gradleVersion = '3.4.2'
         junit_version = '4.13.2'
-        kotlin_version = '1.5.30'
+        kotlin_version = '1.6.0'
         material_version = '1.4.0'
         navigation_version = '2.1.0-beta02'
         recyclerview_version = '1.1.0-beta01'
