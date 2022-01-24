@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (C) 2020 The Android Open Source Project
+  ~ Copyright 2021 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.StorageAPIs" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.ScopedStorage" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_200</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
