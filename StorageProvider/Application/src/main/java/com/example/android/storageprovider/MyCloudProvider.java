@@ -17,6 +17,8 @@
 
 package com.example.android.storageprovider;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
@@ -24,6 +26,7 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.graphics.Point;
+import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
@@ -36,10 +39,12 @@ import com.example.android.common.logger.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -95,7 +100,7 @@ public class MyCloudProvider extends DocumentsProvider {
 
         mBaseDir = getContext().getFilesDir();
 
-        writeDummyFilesToStorage();
+        writeTestFilesToStorage();
 
         return true;
     }
@@ -127,10 +132,18 @@ public class MyCloudProvider extends DocumentsProvider {
         // FLAG_SUPPORTS_CREATE means at least one directory under the root supports creating
         // documents.  FLAG_SUPPORTS_RECENTS means your application's most recently used
         // documents will show up in the "Recents" category.  FLAG_SUPPORTS_SEARCH allows users
-        // to search all documents the application shares.
-        row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE |
-                Root.FLAG_SUPPORTS_RECENTS |
-                Root.FLAG_SUPPORTS_SEARCH);
+        // to search all documents the application shares. FLAG_SUPPORTS_IS_CHILD allows
+        // testing parent child relationships, available after SDK 21 (Lollipop).
+        if (SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE |
+                    Root.FLAG_SUPPORTS_RECENTS |
+                    Root.FLAG_SUPPORTS_SEARCH );
+        } else {
+            row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE |
+                    Root.FLAG_SUPPORTS_RECENTS |
+                    Root.FLAG_SUPPORTS_SEARCH |
+                    Root.FLAG_SUPPORTS_IS_CHILD);
+        }
 
         // COLUMN_TITLE is the root title (e.g. what will be displayed to identify your provider).
         row.add(Root.COLUMN_TITLE, getContext().getString(R.string.app_name));
@@ -330,6 +343,27 @@ public class MyCloudProvider extends DocumentsProvider {
     // END_INCLUDE(open_document)
 
 
+    public boolean isChildFile(File parentFile, File childFile){
+        File realFileParent = childFile.getParentFile();
+        return realFileParent == null || realFileParent.equals(parentFile);
+    }
+
+    // BEGIN_INCLUDE(is_child_document)
+    @Override
+    public boolean isChildDocument(String parentDocumentId, String documentId) {
+        Log.v(TAG, "isChildDocument");
+        try {
+            File parentFile = getFileForDocId(parentDocumentId);
+            File childFile = getFileForDocId(documentId);
+            return isChildFile(parentFile, childFile);
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "FileNotFound in isChildDocument: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+    // END_INCLUDE(is_child_document)
+
     // BEGIN_INCLUDE(create_document)
     @Override
     public String createDocument(String documentId, String mimeType, String displayName)
@@ -339,9 +373,18 @@ public class MyCloudProvider extends DocumentsProvider {
         File parent = getFileForDocId(documentId);
         File file = new File(parent.getPath(), displayName);
         try {
-            file.createNewFile();
-            file.setWritable(true);
-            file.setReadable(true);
+            // Create the new File to copy into
+            boolean wasNewFileCreated = false;
+            if (file.createNewFile()) {
+                if (file.setWritable(true) && file.setReadable(true)) {
+                    wasNewFileCreated = true;
+                }
+            }
+
+            if (!wasNewFileCreated) {
+                throw new FileNotFoundException("Failed to create document with name " +
+                        displayName +" and documentId " + documentId);
+            }
         } catch (IOException e) {
             throw new FileNotFoundException("Failed to create document with name " +
                     displayName +" and documentId " + documentId);
@@ -349,6 +392,38 @@ public class MyCloudProvider extends DocumentsProvider {
         return getDocIdForFile(file);
     }
     // END_INCLUDE(create_document)
+
+    // BEGIN_INCLUDE(rename_document)
+    @Override
+    public String renameDocument(String documentId, String displayName)
+            throws FileNotFoundException {
+        Log.v(TAG, "renameDocument");
+        if (displayName == null) {
+            throw new FileNotFoundException("Failed to rename document, new name is null");
+        }
+
+        // Create the destination file in the same directory as the source file
+        File sourceFile = getFileForDocId(documentId);
+        File sourceParentFile = sourceFile.getParentFile();
+        if (sourceParentFile == null) {
+            throw new FileNotFoundException("Failed to rename document. File has no parent.");
+        }
+        File destFile = new File(sourceParentFile.getPath(), displayName);
+
+        // Try to do the rename
+        try {
+            boolean renameSucceeded = sourceFile.renameTo(destFile);
+            if (!renameSucceeded) {
+                throw new FileNotFoundException("Failed to rename document. Renamed failed.");
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Rename exception : " + e.getLocalizedMessage() + e.getCause());
+            throw new FileNotFoundException("Failed to rename document. Error: " + e.getMessage());
+        }
+
+        return getDocIdForFile(destFile);
+    }
+    // END_INCLUDE(rename_document)
 
     // BEGIN_INCLUDE(delete_document)
     @Override
@@ -362,6 +437,113 @@ public class MyCloudProvider extends DocumentsProvider {
         }
     }
     // END_INCLUDE(delete_document)
+
+    // BEGIN_INCLUDE(remove_document)
+    @Override
+    public void removeDocument(String documentId, String parentDocumentId)
+            throws FileNotFoundException {
+        Log.v(TAG, "removeDocument");
+        File parent = getFileForDocId(parentDocumentId);
+        File file = getFileForDocId(documentId);
+
+        if (file == null) {
+            throw new FileNotFoundException("Failed to delete document with id " + documentId);
+        }
+
+        // removeDocument is the same as deleteDocument but allows the parent to be specified
+        // Check here if the specified parentDocumentId matches the true parent of documentId
+        boolean doesFileParentMatch = false;
+        File fileParent = file.getParentFile();
+
+        if (fileParent == null || fileParent.equals(parent)) {
+            doesFileParentMatch = true;
+        }
+
+        // Remove the file if parent matches or file and parent are equal
+        if (parent.equals(file) || doesFileParentMatch) {
+            if (file.delete()) {
+                Log.i(TAG, "Deleted file with id " + documentId);
+            } else {
+                throw new FileNotFoundException("Failed to delete document with id " + documentId);
+            }
+        } else {
+            throw new FileNotFoundException("Failed to delete document with id " + documentId);
+        }
+    }
+    // END_INCLUDE(remove_document)
+
+    /**
+     * overload copyDocument to insist that the parent matches
+     */
+    public String copyDocument(String sourceDocumentId, String sourceParentDocumentId,
+                               String targetParentDocumentId) throws FileNotFoundException {
+        Log.v(TAG, "copyDocument with document parent");
+        if (!isChildDocument(sourceParentDocumentId, sourceDocumentId)) {
+            throw new FileNotFoundException("Failed to copy document with id " +
+                    sourceDocumentId + ". Parent is not: " + sourceParentDocumentId);
+        }
+        return copyDocument(sourceDocumentId, targetParentDocumentId);
+    }
+
+    // BEGIN_INCLUDE(copyDocument)
+    @Override
+    public String copyDocument(String sourceDocumentId, String targetParentDocumentId)
+            throws FileNotFoundException {
+        Log.v(TAG, "copyDocument");
+
+        File parent = getFileForDocId(targetParentDocumentId);
+        File oldFile = getFileForDocId(sourceDocumentId);
+        File newFile = new File(parent.getPath(), oldFile.getName());
+        try {
+            // Create the new File to copy into
+            boolean wasNewFileCreated = false;
+            if (newFile.createNewFile()) {
+                if (newFile.setWritable(true) && newFile.setReadable(true)) {
+                    wasNewFileCreated = true;
+                }
+            }
+
+            if (!wasNewFileCreated) {
+                throw new FileNotFoundException("Failed to copy document " + sourceDocumentId +
+                        ". Could not create new file.");
+            }
+
+            // Copy the bytes into the new file
+            try (InputStream inStream = new FileInputStream(oldFile)) {
+                try (OutputStream outStream = new FileOutputStream(newFile)) {
+                    // Transfer bytes from in to out
+                    byte[] buf = new byte[4096]; // ideal range for network: 2-8k, disk: 8-64k
+                    int len;
+                    while ((len = inStream.read(buf)) > 0) {
+                        outStream.write(buf, 0, len);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new FileNotFoundException("Failed to copy document: " + sourceDocumentId +
+                    ". " + e.getMessage());
+        }
+        return getDocIdForFile(newFile);
+    }
+    // END_INCLUDE(copyDocument)
+
+    // BEGIN_INCLUDE(moveDocument)
+    @Override
+    public String moveDocument(String sourceDocumentId, String sourceParentDocumentId,
+                               String targetParentDocumentId) throws FileNotFoundException {
+        Log.v(TAG, "moveDocument");
+        try {
+            // Copy document, insisting that the parent is correct
+            String newDocumentId = copyDocument(sourceDocumentId, sourceParentDocumentId,
+                    targetParentDocumentId);
+            // Remove old document
+            removeDocument(sourceDocumentId,sourceParentDocumentId);
+            return newDocumentId;
+        } catch (FileNotFoundException e) {
+            throw new FileNotFoundException("Failed to move document " + sourceDocumentId);
+        }
+    }
+    // END_INCLUDE(moveDocument)
 
 
     @Override
@@ -471,7 +653,7 @@ public class MyCloudProvider extends DocumentsProvider {
      * @param result the cursor to modify
      * @param docId  the document ID representing the desired file (may be null if given file)
      * @param file   the File object representing the desired file (may be null if given docID)
-     * @throws java.io.FileNotFoundException
+     * @throws FileNotFoundException
      */
     private void includeFile(MatrixCursor result, String docId, File file)
             throws FileNotFoundException {
@@ -497,6 +679,16 @@ public class MyCloudProvider extends DocumentsProvider {
             // FLAG_SUPPORTS_DELETE
             flags |= Document.FLAG_SUPPORTS_WRITE;
             flags |= Document.FLAG_SUPPORTS_DELETE;
+
+            // Add SDK specific flags if appropriate
+            if (SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                flags |= Document.FLAG_SUPPORTS_RENAME;
+            }
+            if (SDK_INT >= Build.VERSION_CODES.N) {
+                flags |= Document.FLAG_SUPPORTS_REMOVE;
+                flags |= Document.FLAG_SUPPORTS_MOVE;
+                flags |= Document.FLAG_SUPPORTS_COPY;
+            }
         }
 
         final String displayName = file.getName();
@@ -544,13 +736,12 @@ public class MyCloudProvider extends DocumentsProvider {
         }
     }
 
-
     /**
      * Preload sample files packaged in the apk into the internal storage directory.  This is a
-     * dummy function specific to this demo.  The MyCloud mock cloud service doesn't actually
+     * test function specific to this demo.  The MyCloud mock cloud service doesn't actually
      * have a backend, so it simulates by reading content from the device's internal storage.
      */
-    private void writeDummyFilesToStorage() {
+    private void writeTestFilesToStorage() {
         if (mBaseDir.list().length > 0) {
             return;
         }
@@ -572,7 +763,7 @@ public class MyCloudProvider extends DocumentsProvider {
     }
 
     /**
-     * Write a file to internal storage.  Used to set up our dummy "cloud server".
+     * Write a file to internal storage.  Used to set up our simple "cloud server".
      *
      * @param resId     the resource ID of the file to write to internal storage
      * @param extension the file extension (ex. .png, .mp3)
@@ -610,7 +801,7 @@ public class MyCloudProvider extends DocumentsProvider {
     }
 
     /**
-     * Dummy function to determine whether the user is logged in.
+     * Placeholder function to determine whether the user is logged in.
      */
     private boolean isUserLoggedIn() {
         final SharedPreferences sharedPreferences =
@@ -618,6 +809,4 @@ public class MyCloudProvider extends DocumentsProvider {
                         Context.MODE_PRIVATE);
         return sharedPreferences.getBoolean(getContext().getString(R.string.key_logged_in), false);
     }
-
-
 }
