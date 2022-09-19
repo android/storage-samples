@@ -57,6 +57,7 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation 'androidx.compose.material3:material3:1.0.0-beta02'
 
+    implementation(project(":ui-elements"))
     implementation(project(":photopicker"))
 
     testImplementation 'junit:junit:4.13.2'

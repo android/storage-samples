@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
 
                     NavHost(navController = navController, startDestination = startNavigation) {
                         composable("demos") { MainScreen(navController) }
-                        composable(Demos.PhotoPicker.route) { PhotoPickerScreen() }
+                        composable(Demos.PhotoPicker.route) { PhotoPickerScreen(navController) }
                     }
                 }
             }

@@ -9,14 +9,19 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
+import androidx.navigation.NavController
+import com.samples.storage.uielements.BackButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PhotoPickerScreen() {
+fun PhotoPickerScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Photo Picker", fontFamily = FontFamily.Serif) },
+                navigationIcon = {
+                    BackButton(navController)
+                }
             )
         },
     ) { paddingValues ->
