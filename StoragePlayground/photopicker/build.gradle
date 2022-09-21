@@ -47,6 +47,9 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation 'androidx.compose.material3:material3:1.0.0-beta02'
 
+    implementation 'io.coil-kt:coil-compose:2.2.1'
+    implementation 'io.coil-kt:coil-video:2.2.1'
+
     implementation(project(":ui-elements"))
 
     testImplementation 'junit:junit:4.13.2'
