@@ -61,7 +61,7 @@ dependencies {
     implementation 'io.coil-kt:coil-video:2.2.1'
 
     implementation(project(":ui-elements"))
-    implementation(project(":photopicker"))
+    implementation(project(":demos:photopicker"))
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

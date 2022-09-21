@@ -16,6 +16,7 @@
 
 package com.samples.storage.playground.photopicker
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.net.Uri
@@ -45,9 +46,18 @@ class PhotoPickerViewModel(application: Application) : AndroidViewModel(applicat
     var uiState by mutableStateOf(
         UiState(
             availablePicker = if (isPhotoPickerAvailable()) "Photo Picker" else "Document Picker",
-            maxItems = if (isPhotoPickerAvailable()) MediaStore.getPickImagesMaxLimit() else 100
+            maxItems = getMaxItemsLimit()
         )
     )
+
+    @SuppressLint("NewApi")
+    private fun getMaxItemsLimit(): Int {
+        return if (isPhotoPickerAvailable()) {
+            MediaStore.getPickImagesMaxLimit()
+        } else {
+            100
+        }
+    }
 
     fun onImageFilterClick() {
         if (uiState.videoTypeFilterEnabled) {

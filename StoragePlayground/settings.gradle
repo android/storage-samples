@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 rootProject.name = "Storage Playground"
 include ':ui-elements'
 include ':app'
-include ':photopicker'
+include ':demos:photopicker'
