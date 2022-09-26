@@ -1,41 +1,34 @@
 package com.samples.storage.playground.photopicker
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.Movie
-import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.outlined.Movie
+import androidx.compose.material.icons.filled.Colorize
+import androidx.compose.material.icons.filled.Filter
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -47,13 +40,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.samples.storage.playground.photopicker.PhotoPickerViewModel.Companion.MAX_ITEMS_VALUES
 import com.samples.storage.uielements.BackButton
 import kotlin.math.max
 
@@ -74,12 +67,12 @@ fun PhotoPickerScreen(navController: NavController, viewModel: PhotoPickerViewMo
     )
 
     fun launchPhotoPicker() {
-        viewModel.createPickVisualMediaRequest()?.let { request ->
-            if (state.maxItems == 1) {
-                selectItem.launch(request)
-            } else {
-                selectItems.launch(request)
-            }
+        Log.d("launchPhotoPicker", "items: ${state.maxItems} || ${viewModel.getMaxItems()}")
+
+        if (state.maxItems == 1) {
+            selectItem.launch(viewModel.createPickVisualMediaRequest())
+        } else {
+            selectItems.launch(viewModel.createPickVisualMediaRequest())
         }
     }
 
@@ -95,22 +88,7 @@ fun PhotoPickerScreen(navController: NavController, viewModel: PhotoPickerViewMo
         bottomBar = {
             BottomAppBar(
                 actions = {
-                    Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                        TypeFilterButton(
-                            label = "Image",
-                            icon = if (state.imageTypeFilterEnabled) Icons.Filled.Image else Icons.Outlined.Image,
-                            enabled = state.imageTypeFilterEnabled,
-                            onClick = viewModel::onImageFilterClick
-                        )
-                        TypeFilterButton(
-                            label = "Video",
-                            icon = if (state.videoTypeFilterEnabled) Icons.Filled.Movie else Icons.Outlined.Movie,
-                            enabled = state.videoTypeFilterEnabled,
-                            onClick = viewModel::onVideoFilterClick
-                        )
-
-                        MaxItemsSelect(state.maxItems, viewModel::onMaxItemsChange)
-                    }
+                    MaxItemsSelect(state.maxItems, viewModel::onMaxItemsChange)
                 },
                 floatingActionButton = {
                     FloatingActionButton(
@@ -126,43 +104,56 @@ fun PhotoPickerScreen(navController: NavController, viewModel: PhotoPickerViewMo
     ) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
             ListItem(
+                leadingContent = { Icon(Icons.Filled.Colorize, contentDescription = null) },
                 headlineText = { Text("Picker Used") },
-                leadingContent = { Icon(Icons.Filled.PhotoLibrary, contentDescription = null) },
                 trailingContent = { Text(state.availablePicker) }
             )
             Divider()
+            ListItem(
+                leadingContent = { Icon(Icons.Filled.Filter, contentDescription = null) },
+                headlineText = { Text("File Type Filter") },
+                trailingContent = {
+                    FileTypeFilterMenu(
+                        state.fileTypeFilter,
+                        viewModel::onFileTypeFilterChange
+                    )
+                },
+            )
+            Divider()
+            ListItem(
+                leadingContent = { Icon(Icons.Filled.Tune, contentDescription = null) },
+                headlineText = { Text("Max items limit") },
+                supportingText = { Text("state: ${state.maxItems}") },
+                trailingContent = { MaxItemsSelect(state.maxItems, viewModel::onMaxItemsChange) },
+            )
             PhotoGallery(state.items)
         }
     }
 }
 
+
 @Composable
-fun TypeFilterButton(label: String, icon: ImageVector, enabled: Boolean, onClick: () -> Unit) {
-    if (enabled) {
-        FilledTonalButton(
-            onClick = onClick,
-            contentPadding = ButtonDefaults.ButtonWithIconContentPadding
-        ) {
-            Icon(
-                icon,
-                contentDescription = null,
-                modifier = Modifier.size(ButtonDefaults.IconSize)
-            )
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text(label)
+fun FileTypeFilterMenu(
+    type: PhotoPickerViewModel.FileTypeFilter,
+    onChange: (type: PhotoPickerViewModel.FileTypeFilter) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+        TextButton(onClick = { expanded = true }) {
+            Text(type.name)
         }
-    } else {
-        OutlinedButton(
-            onClick = onClick,
-            contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
         ) {
-            Icon(
-                icon,
-                contentDescription = null,
-                modifier = Modifier.size(ButtonDefaults.IconSize)
-            )
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text(label)
+            PhotoPickerViewModel.FileTypeFilter.values().forEach {
+                DropdownMenuItem(
+                    text = { Text(it.name) },
+                    onClick = { onChange(it); expanded = false }
+                )
+            }
         }
     }
 }
@@ -180,22 +171,12 @@ fun MaxItemsSelect(maxItems: Int, onSelect: (maxItems: Int) -> Unit) {
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            DropdownMenuItem(
-                text = { Text("1 item") },
-                onClick = { onSelect(1); expanded = false }
-            )
-            DropdownMenuItem(
-                text = { Text("3 items") },
-                onClick = { onSelect(3); expanded = false }
-            )
-            DropdownMenuItem(
-                text = { Text("10 items") },
-                onClick = { onSelect(10); expanded = false }
-            )
-            DropdownMenuItem(
-                text = { Text("100 items") },
-                onClick = { onSelect(100); expanded = false }
-            )
+            MAX_ITEMS_VALUES.forEach { value ->
+                DropdownMenuItem(
+                    text = { Text(if (value > 1) "$value items max" else "1 item max") },
+                    onClick = { onSelect(value); expanded = false }
+                )
+            }
         }
     }
 }

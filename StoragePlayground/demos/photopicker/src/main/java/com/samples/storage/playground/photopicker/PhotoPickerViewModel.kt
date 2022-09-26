@@ -17,8 +17,6 @@
 package com.samples.storage.playground.photopicker
 
 import android.annotation.SuppressLint
-import android.app.Application
-import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.result.PickVisualMediaRequest
@@ -29,46 +27,47 @@ import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 
-class PhotoPickerViewModel(application: Application) : AndroidViewModel(application) {
-    private val context: Context
-        get() = getApplication()
+class PhotoPickerViewModel : ViewModel() {
+    companion object {
+        val MAX_ITEMS_VALUES = setOf(1, 3, 5, 10, getMaxItemsLimit())
+
+        @SuppressLint("NewApi")
+        private fun getMaxItemsLimit(): Int {
+            return if (isPhotoPickerAvailable()) {
+                MediaStore.getPickImagesMaxLimit()
+            } else {
+                100
+            }
+        }
+    }
+
+    enum class FileTypeFilter {
+        ImageAndVideo, Image, Video
+    }
 
     data class UiState(
         val availablePicker: String,
         val maxItems: Int,
-        val imageTypeFilterEnabled: Boolean = true,
-        val videoTypeFilterEnabled: Boolean = true,
+        val fileTypeFilter: FileTypeFilter = FileTypeFilter.ImageAndVideo,
         val items: List<Uri> = emptyList()
     )
 
     var uiState by mutableStateOf(
         UiState(
             availablePicker = if (isPhotoPickerAvailable()) "Photo Picker" else "Document Picker",
-            maxItems = getMaxItemsLimit()
+            maxItems = 5
         )
     )
+        private set
 
-    @SuppressLint("NewApi")
-    private fun getMaxItemsLimit(): Int {
-        return if (isPhotoPickerAvailable()) {
-            MediaStore.getPickImagesMaxLimit()
-        } else {
-            100
-        }
+    fun getMaxItems(): Int {
+        return uiState.maxItems
     }
 
-    fun onImageFilterClick() {
-        if (uiState.videoTypeFilterEnabled) {
-            uiState = uiState.copy(imageTypeFilterEnabled = !uiState.imageTypeFilterEnabled)
-        }
-    }
-
-    fun onVideoFilterClick() {
-        if (uiState.imageTypeFilterEnabled) {
-            uiState = uiState.copy(videoTypeFilterEnabled = !uiState.videoTypeFilterEnabled)
-        }
+    fun onFileTypeFilterChange(fileTypeFilter: FileTypeFilter) {
+        uiState = uiState.copy(fileTypeFilter = fileTypeFilter)
     }
 
     fun onMaxItemsChange(maxItems: Int) {
@@ -87,17 +86,11 @@ class PhotoPickerViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
-    fun createPickVisualMediaRequest(): PickVisualMediaRequest? {
-        return if (uiState.imageTypeFilterEnabled) {
-            if (uiState.videoTypeFilterEnabled) {
-                PickVisualMediaRequest(ImageAndVideo)
-            } else {
-                PickVisualMediaRequest(ImageOnly)
-            }
-        } else if (uiState.videoTypeFilterEnabled) {
-            PickVisualMediaRequest(VideoOnly)
-        } else {
-            null
+    fun createPickVisualMediaRequest(): PickVisualMediaRequest {
+        return when (uiState.fileTypeFilter) {
+            FileTypeFilter.ImageAndVideo -> PickVisualMediaRequest(ImageAndVideo)
+            FileTypeFilter.Image -> PickVisualMediaRequest(ImageOnly)
+            FileTypeFilter.Video -> PickVisualMediaRequest(VideoOnly)
         }
     }
 }
