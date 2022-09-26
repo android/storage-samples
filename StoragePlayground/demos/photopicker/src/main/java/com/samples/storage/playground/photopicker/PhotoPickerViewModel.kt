@@ -57,14 +57,10 @@ class PhotoPickerViewModel : ViewModel() {
     var uiState by mutableStateOf(
         UiState(
             availablePicker = if (isPhotoPickerAvailable()) "Photo Picker" else "Document Picker",
-            maxItems = 5
+            maxItems = getMaxItemsLimit()
         )
     )
         private set
-
-    fun getMaxItems(): Int {
-        return uiState.maxItems
-    }
 
     fun onFileTypeFilterChange(fileTypeFilter: FileTypeFilter) {
         uiState = uiState.copy(fileTypeFilter = fileTypeFilter)

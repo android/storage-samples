@@ -1,7 +1,6 @@
 package com.samples.storage.playground.photopicker
 
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -19,7 +18,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Colorize
 import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
@@ -66,16 +64,6 @@ fun PhotoPickerScreen(navController: NavController, viewModel: PhotoPickerViewMo
         viewModel::onMultipleSelect
     )
 
-    fun launchPhotoPicker() {
-        Log.d("launchPhotoPicker", "items: ${state.maxItems} || ${viewModel.getMaxItems()}")
-
-        if (state.maxItems == 1) {
-            selectItem.launch(viewModel.createPickVisualMediaRequest())
-        } else {
-            selectItems.launch(viewModel.createPickVisualMediaRequest())
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -85,22 +73,21 @@ fun PhotoPickerScreen(navController: NavController, viewModel: PhotoPickerViewMo
                 }
             )
         },
-        bottomBar = {
-            BottomAppBar(
-                actions = {
-                    MaxItemsSelect(state.maxItems, viewModel::onMaxItemsChange)
-                },
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = ::launchPhotoPicker,
-                        containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
-                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
-                    ) {
-                        Icon(Icons.Filled.Add, "Select from gallery")
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    if (state.maxItems == 1) {
+                        selectItem.launch(viewModel.createPickVisualMediaRequest())
+                    } else {
+                        selectItems.launch(viewModel.createPickVisualMediaRequest())
                     }
-                }
-            )
-        },
+                },
+                containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+            ) {
+                Icon(Icons.Filled.Add, "Select from gallery")
+            }
+        }
     ) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
             ListItem(
@@ -123,7 +110,6 @@ fun PhotoPickerScreen(navController: NavController, viewModel: PhotoPickerViewMo
             ListItem(
                 leadingContent = { Icon(Icons.Filled.Tune, contentDescription = null) },
                 headlineText = { Text("Max items limit") },
-                supportingText = { Text("state: ${state.maxItems}") },
                 trailingContent = { MaxItemsSelect(state.maxItems, viewModel::onMaxItemsChange) },
             )
             PhotoGallery(state.items)
