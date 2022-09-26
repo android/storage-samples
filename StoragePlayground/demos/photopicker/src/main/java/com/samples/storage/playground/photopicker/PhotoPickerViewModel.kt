@@ -48,18 +48,12 @@ class PhotoPickerViewModel : ViewModel() {
     }
 
     data class UiState(
-        val availablePicker: String,
-        val maxItems: Int,
+        val maxItems: Int = getMaxItemsLimit(),
         val fileTypeFilter: FileTypeFilter = FileTypeFilter.ImageAndVideo,
         val items: List<Uri> = emptyList()
     )
 
-    var uiState by mutableStateOf(
-        UiState(
-            availablePicker = if (isPhotoPickerAvailable()) "Photo Picker" else "Document Picker",
-            maxItems = getMaxItemsLimit()
-        )
-    )
+    var uiState by mutableStateOf(UiState())
         private set
 
     fun onFileTypeFilterChange(fileTypeFilter: FileTypeFilter) {

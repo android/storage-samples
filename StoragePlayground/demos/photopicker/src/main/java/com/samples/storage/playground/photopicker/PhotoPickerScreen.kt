@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Colorize
 import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.BottomAppBarDefaults
@@ -91,12 +90,6 @@ fun PhotoPickerScreen(navController: NavController, viewModel: PhotoPickerViewMo
     ) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
             ListItem(
-                leadingContent = { Icon(Icons.Filled.Colorize, contentDescription = null) },
-                headlineText = { Text("Picker Used") },
-                trailingContent = { Text(state.availablePicker) }
-            )
-            Divider()
-            ListItem(
                 leadingContent = { Icon(Icons.Filled.Filter, contentDescription = null) },
                 headlineText = { Text("File Type Filter") },
                 trailingContent = {
@@ -112,11 +105,11 @@ fun PhotoPickerScreen(navController: NavController, viewModel: PhotoPickerViewMo
                 headlineText = { Text("Max items limit") },
                 trailingContent = { MaxItemsSelect(state.maxItems, viewModel::onMaxItemsChange) },
             )
+            Divider()
             PhotoGallery(state.items)
         }
     }
 }
-
 
 @Composable
 fun FileTypeFilterMenu(
