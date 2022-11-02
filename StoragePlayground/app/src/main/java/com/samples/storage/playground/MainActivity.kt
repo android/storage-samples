@@ -16,16 +16,19 @@
 
 package com.samples.storage.playground
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.samples.storage.playground.addfiles.AddMediaFileScreen
 import com.samples.storage.playground.photopicker.PhotoPickerScreen
 import com.samples.storage.playground.ui.theme.StoragePlaygroundTheme
 
@@ -41,10 +44,12 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
                     val startNavigation = "demos"
+//                    val startNavigation = Demos.PhotoPicker.route
 
                     NavHost(navController = navController, startDestination = startNavigation) {
-                        composable("demos") { MainScreen(navController) }
+                        composable("demos") { DemoScreen(navController) }
                         composable(Demos.PhotoPicker.route) { PhotoPickerScreen(navController) }
+                        composable(Demos.AddMediaFile.route) { AddMediaFileScreen(navController) }
                     }
                 }
             }

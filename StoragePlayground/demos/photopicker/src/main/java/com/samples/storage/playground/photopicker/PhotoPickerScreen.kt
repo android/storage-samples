@@ -113,14 +113,14 @@ fun PhotoPickerScreen(navController: NavController, viewModel: PhotoPickerViewMo
 
 @Composable
 fun FileTypeFilterMenu(
-    type: PhotoPickerViewModel.FileTypeFilter,
-    onChange: (type: PhotoPickerViewModel.FileTypeFilter) -> Unit
+    value: PhotoPickerViewModel.FileTypeFilter,
+    onChange: (value: PhotoPickerViewModel.FileTypeFilter) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
         TextButton(onClick = { expanded = true }) {
-            Text(type.name)
+            Text(value.name)
         }
 
         DropdownMenu(
