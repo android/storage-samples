@@ -20,17 +20,11 @@ import android.app.Application
 import android.content.Context
 import android.media.MediaScannerConnection
 import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.os.storage.StorageManager
 import android.provider.MediaStore
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.getSystemService
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.samples.storage.playground.addfiles.FileUtils.generateFilename
@@ -41,8 +35,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
 
 class AddMediaFileViewModel(application: Application) : AndroidViewModel(application) {
     private val client = OkHttpClient()
@@ -145,16 +137,6 @@ class AddMediaFileViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun droidcon(targetFile: File) {
-        val t = listOf<String>()
-        t.size
-        val storageManager = context.getSystemService<StorageManager>()
-        val fd = FileOutputStream(targetFile).fd
-
-        storageManager.allocateBytes(fd, 500_000_000L) // 500 MB
-    }
-
     private fun saveToSharedStorage(fileType: MediaFile, response: Response) {
         response.use {
             val newFile = File(
@@ -187,27 +169,6 @@ class AddMediaFileViewModel(application: Application) : AndroidViewModel(applica
                     )
                 }
             }
-        }
-    }
-
-    fun test(inputStream: InputStream) {
-        val type = Environment.DIRECTORY_PICTURES
-        val target = Environment.getExternalStoragePublicDirectory(type)
-        val newImage = File(target, "new-image.jpg")
-
-        // Copy content into newFile using streams
-        inputStream.use {
-            newImage.outputStream().use { outputStream ->
-                inputStream.copyTo(outputStream)
-            }
-        }
-
-        MediaScannerConnection.scanFile(
-            context,
-            arrayOf(newImage.path),
-            arrayOf("image/jpeg")
-        ) { path, uri ->
-            Log.d("MediaScanner", "newImage: $path || $uri")
         }
     }
 
