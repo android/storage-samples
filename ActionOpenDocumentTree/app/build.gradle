@@ -36,6 +36,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'com.example.android.ktfiles'
     /*
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
