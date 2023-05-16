@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             result?.let{result ->
-                val directoryUri = result.data
+                val directoryUri = result.data as Uri
 
                 this@MainActivity.contentResolver.takePersistableUriPermission(
                     directoryUri,
