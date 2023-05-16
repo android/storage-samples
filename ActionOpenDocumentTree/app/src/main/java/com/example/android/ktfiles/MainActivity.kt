@@ -25,8 +25,7 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.android.synthetic.main.activity_main.toolbar
+import com.example.android.ktfiles.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,10 +36,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
 
-        val openDirectoryButton = findViewById<FloatingActionButton>(R.id.fab_open_directory)
+        var binding: ActivityMainBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
+
+        val openDirectoryButton = binding.fabOpenDirectory
         openDirectoryButton.setOnClickListener {
             openDirectory()
         }
@@ -75,7 +76,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openDirectory() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         directoryPicker.launch(0)
     }
 
@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
                 return null
             }
 
-            result?.let{result ->
+            result?.let{
                 val directoryUri = result.data as Uri
 
                 this@MainActivity.contentResolver.takePersistableUriPermission(
