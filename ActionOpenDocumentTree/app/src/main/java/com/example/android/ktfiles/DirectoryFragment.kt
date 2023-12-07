@@ -31,7 +31,7 @@ import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -54,8 +54,7 @@ class DirectoryFragment : Fragment() {
         directoryUri = arguments?.getString(ARG_DIRECTORY_URI)?.toUri()
             ?: throw IllegalArgumentException("Must pass URI of directory to open")
 
-        viewModel = ViewModelProviders.of(this)
-            .get(DirectoryFragmentViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(DirectoryFragmentViewModel::class.java)
 
         val view = inflater.inflate(R.layout.fragment_directory, container, false)
         recyclerView = view.findViewById(R.id.list)
@@ -92,8 +91,8 @@ class DirectoryFragment : Fragment() {
         return view
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
 
         viewModel.loadDirectory(directoryUri)
     }
