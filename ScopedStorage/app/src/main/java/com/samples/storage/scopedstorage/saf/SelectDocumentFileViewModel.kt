@@ -57,8 +57,6 @@ class SelectDocumentFileViewModel(
     @SuppressLint("NewApi")
     fun onFileSelect(uri: Uri) {
         viewModelScope.launch {
-            savedStateHandle[SELECTED_FILE_KEY] = SafUtils.getResourceByUri(context, uri)
-
             try {
                 savedStateHandle[SELECTED_FILE_KEY] = SafUtils.getResourceByUri(context, uri)
             } catch (e: Exception) {
