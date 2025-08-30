@@ -15,8 +15,7 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.graygallery">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Used to download images from Unsplash -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -40,7 +39,8 @@
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

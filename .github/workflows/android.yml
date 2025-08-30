@@ -15,29 +15,237 @@
 name: Android CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-
-  build:
-    name: Build
-    runs-on: ubuntu-18.04
-
+  ActionOpenDocument:
+    name: ActionOpenDocument
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: set up JDK 11
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
+          distribution: 'zulu'
           java-version: 11
-      - name: Build project
-        run: .github/scripts/gradlew_recursive.sh assembleDebug
-      - name: Zip artifacts
-        run: zip -r assemble.zip . -i '**/build/*.apk' '**/build/*.aab' '**/build/*.aar' '**/build/*.so'
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v1
+      - name: Build
+        working-directory: ActionOpenDocument
+        run: ./gradlew assembleDebug
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: assemble
-          path: assemble.zip
+          name: ActionOpenDocument-build
+          path: ActionOpenDocument/app/build/outputs/
+
+  ActionOpenDocumentTree:
+    name: ActionOpenDocumentTree
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+      - name: Build
+        working-directory: ActionOpenDocumentTree
+        run: ./gradlew assembleDebug
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ActionOpenDocumentTree-build
+          path: ActionOpenDocumentTree/app/build/outputs/
+
+  ContentProviderPaging:
+    name: ContentProviderPaging
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+      - name: Build
+        working-directory: ContentProviderPaging
+        run: ./gradlew assembleDebug
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ContentProviderPaging-build
+          path: ContentProviderPaging/app/build/outputs/
+
+  ContentProviderPagingKotlin:
+    name: ContentProviderPagingKotlin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+      - name: Build
+        working-directory: ContentProviderPagingKotlin
+        run: ./gradlew assembleDebug
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ContentProviderPagingKotlin-build
+          path: ContentProviderPagingKotlin/app/build/outputs/
+
+  FileManager:
+    name: FileManager
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+      - name: Build
+        working-directory: FileManager
+        run: ./gradlew assembleDebug
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: FileManager-build
+          path: FileManager/app/build/outputs/
+
+  FileProvider:
+    name: FileProvider
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+      - name: Build
+        working-directory: FileProvider
+        run: ./gradlew assembleDebug
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: FileProvider-build
+          path: FileProvider/app/build/outputs/
+
+  MediaStore:
+    name: MediaStore
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+      - name: Build
+        working-directory: MediaStore
+        run: ./gradlew assembleDebug
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MediaStore-build
+          path: MediaStore/app/build/outputs/
+
+  SafDemos:
+    name: SafDemos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+      - name: Build
+        working-directory: SafDemos
+        run: ./gradlew assembleDebug
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SafDemos-build
+          path: SafDemos/app/build/outputs/
+
+  ScopedStorage:
+    name: ScopedStorage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+      - name: Build
+        working-directory: ScopedStorage
+        run: ./gradlew assembleDebug
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ScopedStorage-build
+          path: ScopedStorage/app/build/outputs/
+
+  SharingShortcuts:
+    name: SharingShortcuts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+      - name: Build
+        working-directory: SharingShortcuts
+        run: ./gradlew assembleDebug
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SharingShortcuts-build
+          path: SharingShortcuts/Application/build/outputs/
+
+  StorageClient:
+    name: StorageClient
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+      - name: Build
+        working-directory: StorageClient
+        run: ./gradlew assembleDebug
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: StorageClient-build
+          path: StorageClient/Application/build/outputs/
+
+  StorageProvider:
+    name: StorageProvider
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+      - name: Build
+        working-directory: StorageProvider
+        run: ./gradlew assembleDebug
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: StorageProvider-build
+          path: StorageProvider/Application/build/outputs/
