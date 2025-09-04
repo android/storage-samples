@@ -17,23 +17,31 @@
 package com.example.android.ktfiles
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.android.synthetic.main.activity_main.toolbar
+import com.example.android.ktfiles.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
+    /**
+     * Replaces the old startActivityForResult approach.
+     */
+    private val directoryPicker = registerForActivityResult(DirectoryBrowser()){}
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
 
-        val openDirectoryButton = findViewById<FloatingActionButton>(R.id.fab_open_directory)
+        var binding: ActivityMainBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
+
+        val openDirectoryButton = binding.fabOpenDirectory
         openDirectoryButton.setOnClickListener {
             openDirectory()
         }
@@ -58,19 +66,6 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == OPEN_DIRECTORY_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            val directoryUri = data?.data ?: return
-
-            contentResolver.takePersistableUriPermission(
-                directoryUri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-            showDirectoryContents(directoryUri)
-        }
-    }
-
     fun showDirectoryContents(directoryUri: Uri) {
         supportFragmentManager.commit {
             val directoryTag = directoryUri.toString()
@@ -81,9 +76,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openDirectory() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-        startActivityForResult(intent, OPEN_DIRECTORY_REQUEST_CODE)
+        directoryPicker.launch(0)
+    }
+
+    inner class DirectoryBrowser : ActivityResultContract<Int, Uri?>() {
+        override fun createIntent(context: Context, requestCode: Int) =
+            Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+
+        override fun parseResult(resultCode: Int, result: Intent?) : Uri? {
+            if (resultCode != Activity.RESULT_OK) {
+                return null
+            }
+
+            result?.let{
+                val directoryUri = result.data as Uri
+
+                this@MainActivity.contentResolver.takePersistableUriPermission(
+                    directoryUri,
+
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+                showDirectoryContents(directoryUri)
+
+            }
+
+            return result?.data
+        }
     }
 }
-
-private const val OPEN_DIRECTORY_REQUEST_CODE = 0xf11e
